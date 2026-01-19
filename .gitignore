@@ -1,0 +1,9 @@
+# Ignorar archivos binarios y ejecutables
+**/*.exe
+**/*.dll
+**/*.so
+ventana
+
+# Ignorar archivos estáticos de bibliotecas (.a)
+**/*.a
+**/*.o
