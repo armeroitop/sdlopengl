@@ -1,31 +1,9 @@
 #include <glad/glad.h>
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <vector>
+#include <fstream>
 
-// Vertex Shader
-const char* vertexShaderSource = R"glsl(
-#version 330 core
-in vec3 aPos;
-in vec3 aColor;
-out vec3 ourColor;
-    
-void main()
-{
-    ourColor = aColor;
-    gl_Position = vec4(aPos, 1.0);
-}
-)glsl";
-
-// Fragment Shader
-const char* fragmentShaderSource = R"glsl(
-#version 330 core
-in vec3 ourColor;
-out vec4 FragColor;
-void main()
-{
-    FragColor = vec4(ourColor, 1.0);
-}
-)glsl";
 
 SDL_GLContext glContext;
 SDL_Window* window = nullptr;
@@ -33,14 +11,13 @@ SDL_Window* window = nullptr;
 bool running = true;
 SDL_Event event;
 
-unsigned int shaderProgram;
-unsigned int VAO, VBO;
+GLuint gShaderProgram;
+GLuint VAO, VBO, EBO;
 
 GLint uniColor;
 
 void initialize() {
-    // Inicializaciones necesarias (si es necesario)
-     // Inicializar SDL
+    // Inicializar SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "Error SDL_Init: " << SDL_GetError() << std::endl;
         exit(-1);
@@ -51,9 +28,16 @@ void initialize() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    window = SDL_CreateWindow("Triángulo OpenGL",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    window = SDL_CreateWindow(
+        "Triángulo OpenGL",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        800, 600,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
+    );
 
     if (!window) {
         std::cerr << "Error SDL_CreateWindow: " << SDL_GetError() << std::endl;
@@ -75,28 +59,11 @@ void initialize() {
     std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+}
 
-    // Shaders
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
+void vertexSpecification() {
 
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(fragmentShader);
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    // Triángulo
-    float vertices[] = {
+    const std::vector<GLfloat> vertexPosition{
          0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // arriba, rojo
         -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // izquierda, verde
          0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // derecha, azul
@@ -114,31 +81,102 @@ void initialize() {
     // Buffer para los vértices
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertexPosition.size() * sizeof(GLfloat),
+        vertexPosition.data(),
+        GL_STATIC_DRAW
+    );
 
     // Buffer para los índices de triangulos
-    GLuint EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    // Configuración de los atributos de los vértices
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
+    glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
 
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "aPos");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-
-    GLint colAttrib = glGetAttribLocation(shaderProgram, "aColor");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
 
     // Desvincular VAO y VBO
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-   
+}
+
+GLuint createShaderProgram(const char* vertexSource, const char* fragmentSource) {
+    // Crear y compilar shaders, luego enlazarlos en un programa
+
+    auto compileShader = [](GLenum type, const char* source) -> GLuint {
+        GLuint shader = glCreateShader(type);
+        glShaderSource(shader, 1, &source, nullptr);
+        glCompileShader(shader);
+
+        GLint success;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            char infoLog[1024];
+            glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
+            std::cerr << "Error compilando "
+                << (type == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT")
+                << " shader:\n" << infoLog << std::endl;
+            glDeleteShader(shader);
+            return 0;
+        }
+        return shader;
+        };
+
+    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
+    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
+
+    if (!vertexShader || !fragmentShader) {
+        return 0;
+    }
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+
+    GLint linked;
+    glGetProgramiv(program, GL_LINK_STATUS, &linked);
+    if (!linked) {
+        char infoLog[1024];
+        glGetProgramInfoLog(program, 1024, nullptr, infoLog);
+        std::cerr << "Error enlazando programa:\n" << infoLog << std::endl;
+        glDeleteProgram(program);
+        program = 0;
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+#ifdef _DEBUG
+    glValidateProgram(program);
+#endif
+
+    return program;
+}
+
+std::string loadShaderSource(const char* filename) {
+
+    std::ifstream file(filename, std::ios::in | std::ios::binary);
+
+    if (!file) {
+        throw std::runtime_error("No se pudo abrir el archivo shader.");
+    }
+
+    return std::string(
+        (std::istreambuf_iterator<char>(file)),
+        std::istreambuf_iterator<char>()
+    );
+}
+
+void createGraphicsPipeline() {
+    std::string vertexShaderSource = loadShaderSource("shaders/vertex.glsl");
+    std::string fragmentShaderSource = loadShaderSource("shaders/fragment.glsl");
+    gShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 }
 
 void inputHandling() {
@@ -150,26 +188,30 @@ void inputHandling() {
 }
 
 void preDraw() {
-    // Configuraciones previas al dibujo (si es necesario)
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+
+    glViewport(0, 0, 800, 600);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(gShaderProgram);
 }
 
 void draw() {
     // Lógica de dibujo (si es necesario)
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
-
-    glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    
+
     // Alternatively, to draw a single triangle:
     // glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void mainLoop() {
-    // Bucle principal de la aplicación (si es necesario)
-
+    // Bucle principal de la aplicación
     while (running) {
         inputHandling();
 
@@ -183,6 +225,10 @@ void mainLoop() {
 
 void cleanup() {
     // Limpieza de recursos (si es necesario)
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(gShaderProgram);
+
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -192,12 +238,13 @@ void cleanup() {
 int main(int argc, char* argv[]) {
     initialize();
 
+    createGraphicsPipeline();
+
+    vertexSpecification();
+
     mainLoop();
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
-
     cleanup();
+
     return 0;
 }
