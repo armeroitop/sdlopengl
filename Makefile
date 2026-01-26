@@ -92,8 +92,9 @@ MKDIR		:= mkdir -p
 SRC			:= src
 OBJ			:= obj
 LIBS_DIR	:= libs
+TERCEROS	:= ./terceros
 LIBS 		:= $(LIBS_DIR)/glad/libglad.a -lpthread -lm -lcrypt -lrt `sdl2-config --libs` -lGL
-INC_DIRS 	:= -I$(SRC) -I$(LIBS_DIR) -I$(LIBS_DIR)/glad/include -I/usr/local/include 
+INC_DIRS 	:= -I$(SRC) -I$(LIBS_DIR) -I$(LIBS_DIR)/glad/include -I/usr/local/include  -I$(LIBS_DIR)/glm
 RM 			:= rm
 DEBUG		:= 1
 
