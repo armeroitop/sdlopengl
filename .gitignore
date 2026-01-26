@@ -7,3 +7,4 @@ ventana
 # Ignorar archivos estáticos de bibliotecas (.a)
 **/*.a
 **/*.o
+*.o
