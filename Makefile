@@ -50,7 +50,8 @@ endef
 #   están definidas como 'src' y 'obj', respectivamente.
 #
 define CTO
-$(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(1)))
+$(patsubst $(SRC)/%.cpp,$(OBJ)/%.o, \
+	$(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(1)))
 endef
 
 # Macro para cambiar la extensión de archivos de código fuente a archivos de encabezado (.hpp).
