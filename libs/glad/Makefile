@@ -29,7 +29,7 @@ endef
 ##########################################
 
 APP		:= libglad.a
-CCFLAGS	:= -Wall -pedantic
+CCFLAGS	:= -Wall
 CFLAGS	:= $(CCFLAGS)
 CC		:= g++
 C		:= gcc

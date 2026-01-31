@@ -70,7 +70,7 @@ void vertexSpecification() {
          1.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,  // arriba, blanco
     };
 
-    GLuint indices[] = {
+    const std::vector<GLuint> indices{
         0, 1, 2, // primer triángulo
         0, 2, 3  // segundo triángulo
     };
@@ -91,7 +91,12 @@ void vertexSpecification() {
     // Buffer para los índices de triangulos
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        indices.size() * sizeof(GLuint),
+        indices.data(),
+        GL_STATIC_DRAW
+    );
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
@@ -204,7 +209,12 @@ void draw() {
     // Lógica de dibujo (si es necesario)
 
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(
+        GL_TRIANGLES,
+        6,
+        GL_UNSIGNED_INT,
+        0
+    );
 
     // Alternatively, to draw a single triangle:
     // glDrawArrays(GL_TRIANGLES, 0, 3);
