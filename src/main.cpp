@@ -1,5 +1,9 @@
 #include <glad/glad.h>
 #include <SDL2/SDL.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -15,6 +19,12 @@ GLuint gShaderProgram;
 GLuint VAO, VBO, EBO;
 
 GLint uniColor;
+
+GLfloat g_uOffset_x = 0.0f;
+GLfloat g_uOffset_y = 0.0f;
+
+GLint g_modelLoc;
+GLint g_perspectiveLoc;
 
 void initialize() {
     // Inicializar SDL
@@ -72,7 +82,7 @@ void vertexSpecification() {
 
     const std::vector<GLuint> indices{
         0, 1, 2, // primer triángulo
-        0, 2, 3  // segundo triángulo
+        3, 0, 2  // segundo triángulo
     };
 
     glGenVertexArrays(1, &VAO);
@@ -107,6 +117,9 @@ void vertexSpecification() {
     // Desvincular VAO y VBO
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    g_modelLoc = glGetUniformLocation(gShaderProgram, "model");
+    g_perspectiveLoc = glGetUniformLocation(gShaderProgram, "perspective");
 
 }
 
@@ -184,12 +197,40 @@ void createGraphicsPipeline() {
     gShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 }
 
-void inputHandling() {
+void inputHandling(float deltatime) {
     // Manejo de entradas (si es necesario)
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_QUIT) {
             running = false;
+        }
+
     }
+
+    const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+    float speed = 0.01f;
+
+    if (keyboardState[SDL_SCANCODE_UP]) {
+        g_uOffset_y += speed * deltatime;
+        std::cout << "Offset: " << g_uOffset_y << std::endl;
+    }
+
+    if (keyboardState[SDL_SCANCODE_DOWN]) {
+        g_uOffset_y -= speed * deltatime;
+        std::cout << "Offset: " << g_uOffset_y << std::endl;
+    }
+
+    if (keyboardState[SDL_SCANCODE_LEFT]) {
+        g_uOffset_x -= speed * deltatime;
+        std::cout << "Offset: " << g_uOffset_x << std::endl;
+    }
+    if (keyboardState[SDL_SCANCODE_RIGHT]) {
+        g_uOffset_x += speed * deltatime;
+        std::cout << "Offset: " << g_uOffset_x << std::endl;
+    }
+
+
+
 }
 
 void preDraw() {
@@ -202,7 +243,43 @@ void preDraw() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glm::mat4 model = glm::translate(
+        glm::mat4(1.0f),
+        glm::vec3(0.0f, 0.0f, g_uOffset_y)
+    );
+
+    model = glm::rotate(
+        model,
+        glm::radians(g_uOffset_x * 10.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+
+    glm::mat4 perspective = glm::perspective(
+        glm::radians(45.0f),
+        800.0f / 600.0f,
+        0.1f,
+        100.0f
+    );
+
+    // obtener la ubicación de la uniform
+    //GLint offsetLoc = glGetUniformLocation(gShaderProgram, "g_uOffset");
+
+
     glUseProgram(gShaderProgram);
+
+    if (g_modelLoc == -1) {
+        std::cerr << "Warning: uniform model no encontrada en el shader\n";
+        exit(EXIT_FAILURE);
+    } else {
+        glUniformMatrix4fv(g_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+
+    if (g_perspectiveLoc == -1) {
+        std::cerr << "Warning: uniform perspective no encontrada en el shader\n";
+        exit(EXIT_FAILURE);
+    } else {
+        glUniformMatrix4fv(g_perspectiveLoc, 1, GL_FALSE, glm::value_ptr(perspective));
+    }
 }
 
 void draw() {
@@ -221,9 +298,16 @@ void draw() {
 }
 
 void mainLoop() {
+    Uint32 lastTime = SDL_GetTicks();
+
     // Bucle principal de la aplicación
     while (running) {
-        inputHandling();
+
+        Uint32 currentTime = SDL_GetTicks();
+        float deltatime = (currentTime - lastTime) / 1000.0f;
+        currentTime = lastTime;
+
+        inputHandling(deltatime);
 
         preDraw();
 
@@ -245,7 +329,7 @@ void cleanup() {
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv []) {
     initialize();
 
     createGraphicsPipeline();
