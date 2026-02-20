@@ -12,11 +12,11 @@
 
 SDL_GLContext glContext;
 SDL_Window* window = nullptr;
-
 bool running = true;
-SDL_Event event;
-
 GLuint gShaderProgram;
+
+
+SDL_Event event;
 GLuint VAO, VBO, EBO;
 
 GLint uniColor;
@@ -31,6 +31,34 @@ GLint g_perspectiveLoc;
 
 Camera gCamera;
 GLint g_viewLoc;
+
+struct App {
+    // Dimensiones de la ventana
+    const int mWidth = 800;
+    const int mHeight = 600;
+
+    SDL_Window* mWindow = nullptr;
+    SDL_GLContext mGlContext= nullptr;
+
+    bool mRunning = true;
+
+    GLuint mShaderProgram = 0;
+};
+
+struct Mesh3D {
+
+    GLuint mVAO = 0;
+    GLuint mVBO = 0;
+    GLuint mEBO = 0;
+
+    float m_uOffset_x = 0.0f;
+    float m_uOffset_y = -2.0f;
+    float m_uRotation = 0.0f;
+    float m_uScale = 1.0f;
+};
+
+App gApp;
+Mesh3D gMesh3D;
 
 void initialize() {
     // Inicializar SDL
@@ -47,21 +75,21 @@ void initialize() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    window = SDL_CreateWindow(
+    gApp.mWindow = SDL_CreateWindow(
         "Triángulo OpenGL",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800, 600,
+        gApp.mWidth, gApp.mHeight,
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
     );
 
-    if (!window) {
+    if (!gApp.mWindow) {
         std::cerr << "Error SDL_CreateWindow: " << SDL_GetError() << std::endl;
         SDL_Quit();
         exit(-1);
     }
 
-    glContext = SDL_GL_CreateContext(window);
+    gApp.mGlContext = SDL_GL_CreateContext(gApp.mWindow);
 
     // Configuracion del mouse
     SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -70,7 +98,7 @@ void initialize() {
     // Inicializar GLAD
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
-        SDL_DestroyWindow(window);
+        SDL_DestroyWindow(gApp.mWindow);
         SDL_Quit();
         exit(-1);
     }
@@ -128,9 +156,9 @@ void vertexSpecification() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    g_modelLoc = glGetUniformLocation(gShaderProgram, "model");
-    g_perspectiveLoc = glGetUniformLocation(gShaderProgram, "perspective");
-    g_viewLoc = glGetUniformLocation(gShaderProgram, "view");
+    g_modelLoc = glGetUniformLocation(gApp.mShaderProgram, "model");
+    g_perspectiveLoc = glGetUniformLocation(gApp.mShaderProgram, "perspective");
+    g_viewLoc = glGetUniformLocation(gApp.mShaderProgram, "view");
 
 
 }
@@ -206,7 +234,7 @@ std::string loadShaderSource(const char* filename) {
 void createGraphicsPipeline() {
     std::string vertexShaderSource = loadShaderSource("shaders/vertex.glsl");
     std::string fragmentShaderSource = loadShaderSource("shaders/fragment.glsl");
-    gShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+    gApp.mShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 }
 
 void inputHandling(float deltatime) {
@@ -214,7 +242,7 @@ void inputHandling(float deltatime) {
     // Manejo de entradas (si es necesario)
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
-            running = false;
+            gApp.mRunning = false;
         }
 
         if (event.type == SDL_MOUSEMOTION) {
@@ -226,7 +254,7 @@ void inputHandling(float deltatime) {
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
     
     if (keyboardState[SDL_SCANCODE_ESCAPE]) {
-        running = false;
+        gApp.mRunning = false;
     }
 
     float speed = 0.01f;
@@ -301,7 +329,7 @@ void preDraw() {
 
     glm::mat4 view = gCamera.getViewMatrix();
 
-    glUseProgram(gShaderProgram);
+    glUseProgram(gApp.mShaderProgram);
 
     if (g_modelLoc == -1) {
         std::cerr << "Warning: uniform model no encontrada en el shader\n";
@@ -344,7 +372,7 @@ void mainLoop() {
     Uint32 lastTime = SDL_GetTicks();
 
     // Bucle principal de la aplicación
-    while (running) {
+    while (gApp.mRunning) {
 
         Uint32 currentTime = SDL_GetTicks();
         float deltatime = (currentTime - lastTime) / 1000.0f;
@@ -356,7 +384,7 @@ void mainLoop() {
 
         draw();
 
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(gApp.mWindow);
     }
 }
 
@@ -364,10 +392,10 @@ void cleanup() {
     // Limpieza de recursos (si es necesario)
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(gShaderProgram);
+    glDeleteProgram(gApp.mShaderProgram);
 
     SDL_GL_DeleteContext(glContext);
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(gApp.mWindow);
     SDL_Quit();
 }
 
