@@ -51,8 +51,7 @@ struct Mesh3D {
     GLuint mVBO = 0;
     GLuint mEBO = 0;
 
-    float m_uOffset_x = 0.0f;
-    float m_uOffset_y = -2.0f;
+    float m_uOffset = -2.0f;
     float m_uRotation = 0.0f;
     float m_uScale = 1.0f;
 };
@@ -123,12 +122,12 @@ void vertexSpecification() {
         3, 0, 2  // segundo triángulo
     };
 
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glGenVertexArrays(1, &gMesh3D.mVAO);
+    glBindVertexArray(gMesh3D.mVAO);
 
     // Buffer para los vértices
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glGenBuffers(1, &gMesh3D.mVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, gMesh3D.mVBO);
     glBufferData(
         GL_ARRAY_BUFFER,
         vertexPosition.size() * sizeof(GLfloat),
@@ -137,8 +136,8 @@ void vertexSpecification() {
     );
 
     // Buffer para los índices de triangulos
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glGenBuffers(1, &gMesh3D.mEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gMesh3D.mEBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
         indices.size() * sizeof(GLuint),
@@ -260,22 +259,22 @@ void inputHandling(float deltatime) {
     float speed = 0.01f;
 
     if (keyboardState[SDL_SCANCODE_UP]) {
-        g_uOffset_y += speed * deltatime;
-        std::cout << "Offset: " << g_uOffset_y << std::endl;
+        gMesh3D.m_uOffset += speed * deltatime;
+        std::cout << "Offset: " << gMesh3D.m_uOffset << std::endl;
     }
 
     if (keyboardState[SDL_SCANCODE_DOWN]) {
-        g_uOffset_y -= speed * deltatime;
-        std::cout << "Offset: " << g_uOffset_y << std::endl;
+        gMesh3D.m_uOffset -= speed * deltatime;
+        std::cout << "Offset: " << gMesh3D.m_uOffset << std::endl;
     }
 
     if (keyboardState[SDL_SCANCODE_LEFT]) {
-        g_uOffset_x -= speed * deltatime;
-        std::cout << "Offset: " << g_uOffset_x << std::endl;
+        gMesh3D.m_uRotation -= speed * deltatime;
+        std::cout << "Offset: " << gMesh3D.m_uRotation << std::endl;
     }
     if (keyboardState[SDL_SCANCODE_RIGHT]) {
-        g_uOffset_x += speed * deltatime;
-        std::cout << "Offset: " << g_uOffset_x << std::endl;
+        gMesh3D.m_uRotation += speed * deltatime;
+        std::cout << "Offset: " << gMesh3D.m_uRotation << std::endl;
     }
 
     if (keyboardState[SDL_SCANCODE_W]) {
@@ -306,23 +305,23 @@ void preDraw() {
 
     glm::mat4 model = glm::translate(
         glm::mat4(1.0f),
-        glm::vec3(0.0f, 0.0f, g_uOffset_y)
+        glm::vec3(0.0f, 0.0f, gMesh3D.m_uOffset)
     );
 
     model = glm::rotate(
         model,
-        glm::radians(g_uOffset_x * 10.0f),
+        glm::radians(gMesh3D.m_uRotation * 10.0f),
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
 
     model = glm::scale(
         model,
-        glm::vec3(1.0f, 0.5f, 1.0f)
+        glm::vec3(gMesh3D.m_uScale, gMesh3D.m_uScale, gMesh3D.m_uScale)
     );
 
     glm::mat4 perspective = glm::perspective(
         glm::radians(45.0f),
-        800.0f / 600.0f,
+        gApp.mWidth / (float)gApp.mHeight,
         0.1f,
         100.0f
     );
@@ -356,7 +355,7 @@ void preDraw() {
 void draw() {
     // Lógica de dibujo (si es necesario)
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(gMesh3D.mVAO);
     glDrawElements(
         GL_TRIANGLES,
         6,
@@ -390,8 +389,9 @@ void mainLoop() {
 
 void cleanup() {
     // Limpieza de recursos (si es necesario)
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &gMesh3D.mVAO);
+    glDeleteBuffers(1, &gMesh3D.mVBO);
+    glDeleteBuffers(1, &gMesh3D.mEBO);
     glDeleteProgram(gApp.mShaderProgram);
 
     SDL_GL_DeleteContext(glContext);
