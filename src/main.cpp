@@ -3,10 +3,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include <iostream>
 #include <vector>
 #include <fstream>
+
+#include "camera.hpp"
 
 
 SDL_GLContext glContext;
@@ -21,10 +22,15 @@ GLuint VAO, VBO, EBO;
 GLint uniColor;
 
 GLfloat g_uOffset_x = 0.0f;
-GLfloat g_uOffset_y = 0.0f;
+GLfloat g_uOffset_y = -2.0f;
+int mouseX = 400;
+int mouseY = 300;
 
 GLint g_modelLoc;
 GLint g_perspectiveLoc;
+
+Camera gCamera;
+GLint g_viewLoc;
 
 void initialize() {
     // Inicializar SDL
@@ -56,6 +62,10 @@ void initialize() {
     }
 
     glContext = SDL_GL_CreateContext(window);
+
+    // Configuracion del mouse
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+   // SDL_WarpMouseInWindow(window, 400, 300); // Centrar el mouse en la ventana
 
     // Inicializar GLAD
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
@@ -120,6 +130,8 @@ void vertexSpecification() {
 
     g_modelLoc = glGetUniformLocation(gShaderProgram, "model");
     g_perspectiveLoc = glGetUniformLocation(gShaderProgram, "perspective");
+    g_viewLoc = glGetUniformLocation(gShaderProgram, "view");
+
 
 }
 
@@ -198,15 +210,24 @@ void createGraphicsPipeline() {
 }
 
 void inputHandling(float deltatime) {
+    // don't shadow global mouse variables; we use SDL relative motion
     // Manejo de entradas (si es necesario)
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             running = false;
         }
 
+        if (event.type == SDL_MOUSEMOTION) {
+            gCamera.mouseLook(event.motion.xrel, event.motion.yrel);
+        }
     }
-
+    
+    SDL_PumpEvents();
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+    
+    if (keyboardState[SDL_SCANCODE_ESCAPE]) {
+        running = false;
+    }
 
     float speed = 0.01f;
 
@@ -229,6 +250,18 @@ void inputHandling(float deltatime) {
         std::cout << "Offset: " << g_uOffset_x << std::endl;
     }
 
+    if (keyboardState[SDL_SCANCODE_W]) {
+        gCamera.moveForward(deltatime);
+    }
+    if (keyboardState[SDL_SCANCODE_S]) {
+        gCamera.moveBackward(deltatime);
+    }
+    if (keyboardState[SDL_SCANCODE_A]) {
+        gCamera.moveLeft(deltatime);
+    }
+    if (keyboardState[SDL_SCANCODE_D]) {
+        gCamera.moveRighit(deltatime);
+    }
 
 
 }
@@ -254,6 +287,11 @@ void preDraw() {
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
 
+    model = glm::scale(
+        model,
+        glm::vec3(1.0f, 0.5f, 1.0f)
+    );
+
     glm::mat4 perspective = glm::perspective(
         glm::radians(45.0f),
         800.0f / 600.0f,
@@ -261,9 +299,7 @@ void preDraw() {
         100.0f
     );
 
-    // obtener la ubicación de la uniform
-    //GLint offsetLoc = glGetUniformLocation(gShaderProgram, "g_uOffset");
-
+    glm::mat4 view = gCamera.getViewMatrix();
 
     glUseProgram(gShaderProgram);
 
@@ -279,6 +315,13 @@ void preDraw() {
         exit(EXIT_FAILURE);
     } else {
         glUniformMatrix4fv(g_perspectiveLoc, 1, GL_FALSE, glm::value_ptr(perspective));
+    }
+
+    if (g_viewLoc == -1) {
+        std::cerr << "Warning: uniform view no encontrada en el shader\n";
+        exit(EXIT_FAILURE);
+    } else {
+        glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     }
 }
 
@@ -305,7 +348,7 @@ void mainLoop() {
 
         Uint32 currentTime = SDL_GetTicks();
         float deltatime = (currentTime - lastTime) / 1000.0f;
-        currentTime = lastTime;
+        lastTime = currentTime;
 
         inputHandling(deltatime);
 
@@ -327,7 +370,6 @@ void cleanup() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-
 
 int main(int argc, char* argv []) {
     initialize();
