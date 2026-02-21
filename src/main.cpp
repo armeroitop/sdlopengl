@@ -38,7 +38,7 @@ struct App {
     const int mHeight = 600;
 
     SDL_Window* mWindow = nullptr;
-    SDL_GLContext mGlContext= nullptr;
+    SDL_GLContext mGlContext = nullptr;
 
     bool mRunning = true;
 
@@ -59,7 +59,7 @@ struct Mesh3D {
 App gApp;
 Mesh3D gMesh3D;
 
-void initialize() {
+void initialize(App* app) {
     // Inicializar SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "Error SDL_Init: " << SDL_GetError() << std::endl;
@@ -74,30 +74,30 @@ void initialize() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    gApp.mWindow = SDL_CreateWindow(
+    app->mWindow = SDL_CreateWindow(
         "Triángulo OpenGL",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        gApp.mWidth, gApp.mHeight,
+        app->mWidth, app->mHeight,
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
     );
 
-    if (!gApp.mWindow) {
+    if (!app->mWindow) {
         std::cerr << "Error SDL_CreateWindow: " << SDL_GetError() << std::endl;
         SDL_Quit();
         exit(-1);
     }
 
-    gApp.mGlContext = SDL_GL_CreateContext(gApp.mWindow);
+    app->mGlContext = SDL_GL_CreateContext(app->mWindow);
 
     // Configuracion del mouse
     SDL_SetRelativeMouseMode(SDL_TRUE);
-   // SDL_WarpMouseInWindow(window, 400, 300); // Centrar el mouse en la ventana
+    // SDL_WarpMouseInWindow(window, 400, 300); // Centrar el mouse en la ventana
 
     // Inicializar GLAD
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
-        SDL_DestroyWindow(gApp.mWindow);
+        SDL_DestroyWindow(app->mWindow);
         SDL_Quit();
         exit(-1);
     }
@@ -108,7 +108,7 @@ void initialize() {
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 }
 
-void vertexSpecification() {
+void vertexSpecification(Mesh3D* mesh) {
 
     const std::vector<GLfloat> vertexPosition{
          0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // arriba, rojo
@@ -122,12 +122,12 @@ void vertexSpecification() {
         3, 0, 2  // segundo triángulo
     };
 
-    glGenVertexArrays(1, &gMesh3D.mVAO);
-    glBindVertexArray(gMesh3D.mVAO);
+    glGenVertexArrays(1, &mesh->mVAO);
+    glBindVertexArray(mesh->mVAO);
 
     // Buffer para los vértices
-    glGenBuffers(1, &gMesh3D.mVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, gMesh3D.mVBO);
+    glGenBuffers(1, &mesh->mVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->mVBO);
     glBufferData(
         GL_ARRAY_BUFFER,
         vertexPosition.size() * sizeof(GLfloat),
@@ -136,8 +136,8 @@ void vertexSpecification() {
     );
 
     // Buffer para los índices de triangulos
-    glGenBuffers(1, &gMesh3D.mEBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gMesh3D.mEBO);
+    glGenBuffers(1, &mesh->mEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->mEBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
         indices.size() * sizeof(GLuint),
@@ -248,10 +248,10 @@ void inputHandling(float deltatime) {
             gCamera.mouseLook(event.motion.xrel, event.motion.yrel);
         }
     }
-    
+
     SDL_PumpEvents();
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-    
+
     if (keyboardState[SDL_SCANCODE_ESCAPE]) {
         gApp.mRunning = false;
     }
@@ -394,17 +394,17 @@ void cleanup() {
     glDeleteBuffers(1, &gMesh3D.mEBO);
     glDeleteProgram(gApp.mShaderProgram);
 
-    SDL_GL_DeleteContext(glContext);
+    SDL_GL_DeleteContext(gApp.mGlContext);
     SDL_DestroyWindow(gApp.mWindow);
     SDL_Quit();
 }
 
 int main(int argc, char* argv []) {
-    initialize();
+    initialize(&gApp);
 
     createGraphicsPipeline();
 
-    vertexSpecification();
+    vertexSpecification(&gMesh3D);
 
     mainLoop();
 
