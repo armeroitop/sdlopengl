@@ -82,7 +82,7 @@ void Mesh::update(float deltatime) {
         glm::vec3(m_uScale, m_uScale, m_uScale)
     );
 
-    perspective = app->mCamera.getPerspectiveMatrix();
+    perspective = app->mCamera.getPerspectiveMatrix(app->aspectRatio);
 
     view = app->mCamera.getViewMatrix();
 

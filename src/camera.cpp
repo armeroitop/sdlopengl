@@ -28,7 +28,7 @@ glm::mat4 Camera::getViewMatrix() const {
     );
 }
 
-glm::mat4 Camera::getPerspectiveMatrix() const {
+glm::mat4 Camera::getPerspectiveMatrix(float aspect) const {
 
     glm::mat4 perspective = glm::perspective(
         glm::radians(fov),

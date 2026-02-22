@@ -11,6 +11,8 @@ struct App {
     const int mWidth = 800;
     const int mHeight = 600;
 
+    float aspectRatio = mWidth / static_cast<float>(mHeight);
+
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGlContext = nullptr;
 

@@ -35,7 +35,7 @@ public:
     ~Camera();
 
     glm::mat4 getViewMatrix() const;
-    glm::mat4 getPerspectiveMatrix() const;
+    glm::mat4 getPerspectiveMatrix(float aspect) const;
 
     void moveForward(float deltaTime);
     void moveBackward(float deltaTime);
