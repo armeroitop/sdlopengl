@@ -28,16 +28,15 @@ struct Mesh {
     float m_uScale = 1.0f;
 
     glm::mat4 model;
-    glm::mat4 perspective;
-    glm::mat4 view;
 
-    Mesh(App* app, float uOffset, float uRotation, float uScale);
+    Mesh(float uOffset, float uRotation, float uScale);
     ~Mesh();
     void setVertexData(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices) ;
     void initialize();
     void update(float deltatime);
-    void setUniforms();
     void draw();
     void cleanup();
+
+    const glm::mat4& getModelMatrix() const; 
 };
 

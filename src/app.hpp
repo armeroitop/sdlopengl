@@ -5,13 +5,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "camera.hpp"
+#include "mesh.hpp"
 
 struct App {
     // Dimensiones de la ventana
     const int mWidth = 800;
     const int mHeight = 600;
-
-    float aspectRatio = mWidth / static_cast<float>(mHeight);
+    float aspectRatio;
 
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGlContext = nullptr;
@@ -20,4 +20,13 @@ struct App {
 
     GLuint mShaderProgram = 0;
     Camera mCamera;
+
+    glm::mat4 mProjection;
+    glm::mat4 mView;
+
+    std::vector<Mesh> mMeshes;
+
+    void init();
+    void update(float dt);
+    void render();
 };

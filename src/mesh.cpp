@@ -6,8 +6,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 
-Mesh::Mesh(App* app, float uOffset, float uRotation, float uScale)
-    : app(app), m_uOffset(uOffset), m_uRotation(uRotation), m_uScale(uScale) {
+Mesh::Mesh( float uOffset, float uRotation, float uScale)
+    :  m_uOffset(uOffset), m_uRotation(uRotation), m_uScale(uScale) {
 }
 Mesh::~Mesh() {
     // Destructor por defecto
@@ -81,48 +81,12 @@ void Mesh::update(float deltatime) {
         model,
         glm::vec3(m_uScale, m_uScale, m_uScale)
     );
-
-    perspective = app->mCamera.getPerspectiveMatrix(app->aspectRatio);
-
-    view = app->mCamera.getViewMatrix();
-
-    glUseProgram(app->mShaderProgram);
 }
 
-void Mesh::setUniforms() {
-    // Configuración de uniformes específicos del mesh (si es necesario)
-
-    mModelLoc       = glGetUniformLocation(app->mShaderProgram, "model");
-    mPerspectiveLoc = glGetUniformLocation(app->mShaderProgram, "perspective");
-    mViewLoc        = glGetUniformLocation(app->mShaderProgram, "view");
-
-    if (mModelLoc == -1) {
-        std::cerr << "Warning: uniform model no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(mModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    }
-
-    if (mPerspectiveLoc == -1) {
-        std::cerr << "Warning: uniform perspective no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(mPerspectiveLoc, 1, GL_FALSE, glm::value_ptr(perspective));
-    }
-
-    if (mViewLoc == -1) {
-        std::cerr << "Warning: uniform view no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(mViewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    }
-}
 
 void Mesh::draw() {
     // Lógica de dibujo del mesh
-    setUniforms();
 
-    glUseProgram(app->mShaderProgram);
     glBindVertexArray(mVAO);
     glDrawElements(
         GL_TRIANGLES,
@@ -137,4 +101,8 @@ void Mesh::cleanup() {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);
     glDeleteBuffers(1, &mEBO);
+}
+
+const glm::mat4& Mesh::getModelMatrix() const {
+    return model;
 }

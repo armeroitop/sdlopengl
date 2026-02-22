@@ -18,8 +18,8 @@
 SDL_Event event;
 
 App gApp;
-Mesh mesh1(&gApp, -2.0f, 0.0f, 1.0f);
-Mesh mesh2(&gApp, -4.0f, 0.0f, 1.0f);
+//Mesh mesh1(-2.0f, 0.0f, 1.0f);
+//Mesh mesh2(-4.0f, 0.0f, 1.0f);
 
 void initialize(App* app) {
     // Inicializar SDL
@@ -169,22 +169,28 @@ void inputHandling(App* app, float deltatime) {
     float speed = 1.2f;
 
     if (keyboardState[SDL_SCANCODE_UP]) {
-        mesh1.m_uOffset += speed * deltatime;
-        std::cout << "Offset: " << mesh1.m_uOffset << std::endl;
+        /* mesh1.m_uOffset += speed * deltatime;
+        std::cout << "Offset: " << mesh1.m_uOffset << std::endl; */
     }
 
     if (keyboardState[SDL_SCANCODE_DOWN]) {
-        mesh1.m_uOffset -= speed * deltatime;
-        std::cout << "Offset: " << mesh1.m_uOffset << std::endl;
+        for (auto& mesh : app->mMeshes) {
+            mesh.m_uOffset -= speed * deltatime;
+            std::cout << "Offset: " << mesh.m_uOffset << std::endl;
+        }
     }
 
     if (keyboardState[SDL_SCANCODE_LEFT]) {
-        mesh1.m_uRotation -= speed * deltatime;
-        std::cout << "Offset: " << mesh1.m_uRotation << std::endl;
+        /* for (auto& mesh : app->mMeshes) {
+            mesh.m_uRotation -= speed * deltatime;
+            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
+        } */
     }
     if (keyboardState[SDL_SCANCODE_RIGHT]) {
-        mesh1.m_uRotation += speed * deltatime;
-        std::cout << "Offset: " << mesh1.m_uRotation << std::endl;
+        /* for (auto& mesh : app->mMeshes) {
+            mesh.m_uRotation += speed * deltatime;
+            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
+        } */
     }
 
     if (keyboardState[SDL_SCANCODE_W]) {
@@ -201,16 +207,20 @@ void inputHandling(App* app, float deltatime) {
     }
 }
 
-void preDraw() {
+void beginFrame() {
 
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+    // Activar test de profundidad
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);  // estándar
+
+    glEnable(GL_CULL_FACE); // opcional: cull front/back faces
+    glCullFace(GL_BACK);    // opcional
 
     glViewport(0, 0, 800, 600);
+
+    // Limpiar buffers
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 }
 
 void mainLoop() {
@@ -225,23 +235,16 @@ void mainLoop() {
 
         inputHandling(&gApp, deltatime);
 
-        preDraw();
-
-        mesh1.update(deltatime);
-        mesh2.update(deltatime);
-       
-        mesh1.draw();
-        mesh2.draw();
+        for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
+        beginFrame();
+        gApp.render();
 
         SDL_GL_SwapWindow(gApp.mWindow);
     }
 }
 
 void cleanup(App* app) {
-    // Limpieza de recursos (si es necesario)
-    /* glDeleteVertexArrays(1, &gMesh3D.mVAO);
-    glDeleteBuffers(1, &gMesh3D.mVBO);
-    glDeleteBuffers(1, &gMesh3D.mEBO); */
+
     glDeleteProgram(app->mShaderProgram);
 
     SDL_GL_DeleteContext(app->mGlContext);
@@ -265,17 +268,21 @@ int main(int argc, char* argv []) {
         3, 0, 2  // segundo triángulo
     };
 
-    mesh1.setVertexData(vertexPosition, indices);
-    mesh2.setVertexData(vertexPosition, indices);
+    
+    gApp.init();
 
-    //vertexSpecification(&gMesh3D);
-    mesh1.initialize();
-    mesh2.initialize();
+    gApp.mMeshes.emplace_back(-2.0f, 0.0f, 1.0f);
+    gApp.mMeshes.emplace_back(-4.0f, 0.0f, 1.0f);
+
+    for (auto& mesh : gApp.mMeshes) {
+        mesh.setVertexData(vertexPosition, indices);
+        mesh.initialize();
+    }
 
     mainLoop();
 
-    mesh1.cleanup();
-    mesh2.cleanup();
+    for (auto& mesh : gApp.mMeshes) mesh.cleanup();
+
     cleanup(&gApp);
 
     return 0;
