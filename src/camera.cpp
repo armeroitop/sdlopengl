@@ -28,6 +28,17 @@ glm::mat4 Camera::getViewMatrix() const {
     );
 }
 
+glm::mat4 Camera::getPerspectiveMatrix() const {
+
+    glm::mat4 perspective = glm::perspective(
+        glm::radians(fov),
+        aspect,
+        nearPlane,
+        farPlane
+    );
+    return perspective;
+}
+
 void Camera::moveForward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 

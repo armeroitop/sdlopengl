@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Camera {
 private:
@@ -12,6 +13,12 @@ private:
     glm::vec2 mLastMousePosition;
 
     glm::mat4 mViewMatrix;
+    glm::mat4 mPerspectiveMatrix;
+
+    float fov = 45.0f;
+    float aspect = 800.0f / 600.0f;
+    float nearPlane = 0.1f;
+    float farPlane = 100.0f;
 
     float mSpeed = 0.0f;
     float mouseX = 0.0f;
@@ -28,6 +35,7 @@ public:
     ~Camera();
 
     glm::mat4 getViewMatrix() const;
+    glm::mat4 getPerspectiveMatrix() const;
 
     void moveForward(float deltaTime);
     void moveBackward(float deltaTime);
@@ -35,7 +43,6 @@ public:
     void moveRight(float deltaTime);
 
     void mouseLook(float mouseX, float mouseY);
-
 
 
 

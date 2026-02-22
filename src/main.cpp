@@ -1,3 +1,5 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glad/glad.h>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -7,209 +9,17 @@
 #include <vector>
 #include <fstream>
 
+#include "app.hpp"
 #include "camera.hpp"
+#include "mesh.hpp"
 
-
-SDL_GLContext glContext;
-SDL_Window* window = nullptr;
-bool running = true;
-GLuint gShaderProgram;
 
 
 SDL_Event event;
-GLuint VAO, VBO, EBO;
-
-GLint uniColor;
-
-GLfloat g_uOffset_x = 0.0f;
-GLfloat g_uOffset_y = -2.0f;
-int mouseX = 400;
-int mouseY = 300;
-
-GLint g_modelLoc;
-GLint g_perspectiveLoc;
-
-
-GLint g_viewLoc;
-
-struct App {
-    // Dimensiones de la ventana
-    const int mWidth = 800;
-    const int mHeight = 600;
-
-    SDL_Window* mWindow = nullptr;
-    SDL_GLContext mGlContext = nullptr;
-
-    bool mRunning = true;
-
-    GLuint mShaderProgram = 0;
-    Camera mCamera;
-};
-
-struct Mesh3D {
-    App* app = nullptr;
-
-    GLuint mVAO = 0;
-    GLuint mVBO = 0;
-    GLuint mEBO = 0;
-
-    GLint mModelLoc;
-    GLint mPerspectiveLoc;
-    GLint mViewLoc;
-
-    float m_uOffset = -2.0f;
-    float m_uRotation = 0.0f;
-    float m_uScale = 1.0f;
-
-    glm::mat4 model;
-    glm::mat4 perspective;
-    glm::mat4 view;
-
-    Mesh3D(App* app, float uOffset, float uRotation, float uScale);
-    ~Mesh3D();
-    void initialize();
-    void update(float deltatime);
-    void setUniforms();
-    void draw();
-    void cleanup();
-};
-
-Mesh3D::Mesh3D(App* app, float uOffset, float uRotation, float uScale)
-    : app(app), m_uOffset(uOffset), m_uRotation(uRotation), m_uScale(uScale) {
-}
-Mesh3D::~Mesh3D() {
-    // Destructor por defecto
-}
-
-void Mesh3D::initialize() {
-    const std::vector<GLfloat> vertexPosition{
-         0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // arriba, rojo
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // izquierda, verde
-         0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // derecha, azul
-         1.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,  // arriba, blanco
-    };
-
-    const std::vector<GLuint> indices{
-        0, 1, 2, // primer triángulo
-        3, 0, 2  // segundo triángulo
-    };
-
-    glGenVertexArrays(1, &mVAO);
-    glBindVertexArray(mVAO);
-
-    // Buffer para los vértices
-    glGenBuffers(1, &mVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        vertexPosition.size() * sizeof(GLfloat),
-        vertexPosition.data(),
-        GL_STATIC_DRAW
-    );
-
-    // Buffer para los índices de triangulos
-    glGenBuffers(1, &mEBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        indices.size() * sizeof(GLuint),
-        indices.data(),
-        GL_STATIC_DRAW
-    );
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
-
-    // Desvincular VAO y VBO
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-}
-
-void Mesh3D::update(float deltatime) {
-    // Actualización de la lógica del mesh (si es necesario)
-    model = glm::translate(
-        glm::mat4(1.0f),
-        glm::vec3(0.0f, 0.0f, m_uOffset)
-    );
-
-    model = glm::rotate(
-        model,
-        glm::radians(m_uRotation * 10.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-
-    model = glm::scale(
-        model,
-        glm::vec3(m_uScale, m_uScale, m_uScale)
-    );
-
-    perspective = glm::perspective(
-        glm::radians(45.0f),
-        app->mWidth / (float)app->mHeight,
-        0.1f,
-        100.0f
-    );
-
-    view = app->mCamera.getViewMatrix();
-
-    glUseProgram(app->mShaderProgram);
-}
-
-void Mesh3D::setUniforms() {
-    // Configuración de uniformes específicos del mesh (si es necesario)
-
-    mModelLoc       = glGetUniformLocation(app->mShaderProgram, "model");
-    mPerspectiveLoc = glGetUniformLocation(app->mShaderProgram, "perspective");
-    mViewLoc        = glGetUniformLocation(app->mShaderProgram, "view");
-
-    if (mModelLoc == -1) {
-        std::cerr << "Warning: uniform model no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(mModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    }
-
-    if (mPerspectiveLoc == -1) {
-        std::cerr << "Warning: uniform perspective no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(mPerspectiveLoc, 1, GL_FALSE, glm::value_ptr(perspective));
-    }
-
-    if (mViewLoc == -1) {
-        std::cerr << "Warning: uniform view no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(mViewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    }
-}
-
-void Mesh3D::draw() {
-    // Lógica de dibujo del mesh
-    glUseProgram(app->mShaderProgram);
-    glBindVertexArray(mVAO);
-    glDrawElements(
-        GL_TRIANGLES,
-        6,
-        GL_UNSIGNED_INT,
-        0
-    );
-}
-
-void Mesh3D::cleanup() {
-    // Limpieza de recursos (si es necesario)
-    glDeleteVertexArrays(1, &mVAO);
-    glDeleteBuffers(1, &mVBO);
-    glDeleteBuffers(1, &mEBO);
-}
 
 App gApp;
-Mesh3D mesh1(&gApp, -2.0f, 0.0f, 1.0f);
-Mesh3D mesh2(&gApp, -4.0f, 0.0f, 1.0f);
+Mesh mesh1(&gApp, -2.0f, 0.0f, 1.0f);
+Mesh mesh2(&gApp, -4.0f, 0.0f, 1.0f);
 
 void initialize(App* app) {
     // Inicializar SDL
@@ -260,57 +70,7 @@ void initialize(App* app) {
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 }
 
-void vertexSpecification(Mesh3D* mesh) {
 
-    const std::vector<GLfloat> vertexPosition{
-         0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // arriba, rojo
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // izquierda, verde
-         0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // derecha, azul
-         1.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,  // arriba, blanco
-    };
-
-    const std::vector<GLuint> indices{
-        0, 1, 2, // primer triángulo
-        3, 0, 2  // segundo triángulo
-    };
-
-    glGenVertexArrays(1, &mesh->mVAO);
-    glBindVertexArray(mesh->mVAO);
-
-    // Buffer para los vértices
-    glGenBuffers(1, &mesh->mVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->mVBO);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        vertexPosition.size() * sizeof(GLfloat),
-        vertexPosition.data(),
-        GL_STATIC_DRAW
-    );
-
-    // Buffer para los índices de triangulos
-    glGenBuffers(1, &mesh->mEBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->mEBO);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        indices.size() * sizeof(GLuint),
-        indices.data(),
-        GL_STATIC_DRAW
-    );
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
-
-    // Desvincular VAO y VBO
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    g_modelLoc = glGetUniformLocation(gApp.mShaderProgram, "model");
-    g_perspectiveLoc = glGetUniformLocation(gApp.mShaderProgram, "perspective");
-    g_viewLoc = glGetUniformLocation(gApp.mShaderProgram, "view");
-}
 
 GLuint createShaderProgram(const char* vertexSource, const char* fragmentSource) {
     // Crear y compilar shaders, luego enlazarlos en un programa
@@ -451,70 +211,6 @@ void preDraw() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /*
-    glm::mat4 model = glm::translate(
-        glm::mat4(1.0f),
-        glm::vec3(0.0f, 0.0f, gMesh3D.m_uOffset)
-    );
-
-    model = glm::rotate(
-        model,
-        glm::radians(gMesh3D.m_uRotation * 10.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-
-    model = glm::scale(
-        model,
-        glm::vec3(gMesh3D.m_uScale, gMesh3D.m_uScale, gMesh3D.m_uScale)
-    );
-
-    glm::mat4 perspective = glm::perspective(
-        glm::radians(45.0f),
-        gApp.mWidth / (float)gApp.mHeight,
-        0.1f,
-        100.0f
-    );
-
-    glm::mat4 view = gCamera.getViewMatrix();
-
-    glUseProgram(gApp.mShaderProgram);
-
-    if (g_modelLoc == -1) {
-        std::cerr << "Warning: uniform model no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(g_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    }
-
-    if (g_perspectiveLoc == -1) {
-        std::cerr << "Warning: uniform perspective no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(g_perspectiveLoc, 1, GL_FALSE, glm::value_ptr(perspective));
-    }
-
-    if (g_viewLoc == -1) {
-        std::cerr << "Warning: uniform view no encontrada en el shader\n";
-        exit(EXIT_FAILURE);
-    } else {
-        glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    }
-    */
-}
-
-void draw() {
-    // Lógica de dibujo (si es necesario)
-
-    /* glBindVertexArray(gMesh3D.mVAO);
-    glDrawElements(
-        GL_TRIANGLES,
-        6,
-        GL_UNSIGNED_INT,
-        0
-    ); */
-
-    // Alternatively, to draw a single triangle:
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void mainLoop() {
@@ -530,14 +226,11 @@ void mainLoop() {
         inputHandling(&gApp, deltatime);
 
         preDraw();
-        draw();
+
         mesh1.update(deltatime);
         mesh2.update(deltatime);
-        
-        mesh1.setUniforms();
+       
         mesh1.draw();
-        
-        mesh2.setUniforms();
         mesh2.draw();
 
         SDL_GL_SwapWindow(gApp.mWindow);
@@ -560,6 +253,20 @@ int main(int argc, char* argv []) {
     initialize(&gApp);
 
     createGraphicsPipeline();
+
+    const std::vector<GLfloat> vertexPosition{
+         0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // arriba, rojo
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // izquierda, verde
+         0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // derecha, azul
+         1.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,  // arriba, blanco
+    };
+    const std::vector<GLuint> indices{
+        0, 1, 2, // primer triángulo
+        3, 0, 2  // segundo triángulo
+    };
+
+    mesh1.setVertexData(vertexPosition, indices);
+    mesh2.setVertexData(vertexPosition, indices);
 
     //vertexSpecification(&gMesh3D);
     mesh1.initialize();
