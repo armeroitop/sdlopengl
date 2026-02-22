@@ -59,7 +59,7 @@ void Camera::moveLeft(float deltaTime) {
     mEye -= right * velocity;
 }
 
-void Camera::moveRighit(float deltaTime) {
+void Camera::moveRight(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
     glm::vec3 right = glm::normalize(glm::cross(mViewDirection, mUpVector));

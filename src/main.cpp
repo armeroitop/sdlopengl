@@ -29,7 +29,7 @@ int mouseY = 300;
 GLint g_modelLoc;
 GLint g_perspectiveLoc;
 
-Camera gCamera;
+
 GLint g_viewLoc;
 
 struct App {
@@ -43,21 +43,173 @@ struct App {
     bool mRunning = true;
 
     GLuint mShaderProgram = 0;
+    Camera mCamera;
 };
 
 struct Mesh3D {
+    App* app = nullptr;
 
     GLuint mVAO = 0;
     GLuint mVBO = 0;
     GLuint mEBO = 0;
 
+    GLint mModelLoc;
+    GLint mPerspectiveLoc;
+    GLint mViewLoc;
+
     float m_uOffset = -2.0f;
     float m_uRotation = 0.0f;
     float m_uScale = 1.0f;
+
+    glm::mat4 model;
+    glm::mat4 perspective;
+    glm::mat4 view;
+
+    Mesh3D(App* app, float uOffset, float uRotation, float uScale);
+    ~Mesh3D();
+    void initialize();
+    void update(float deltatime);
+    void setUniforms();
+    void draw();
+    void cleanup();
 };
 
+Mesh3D::Mesh3D(App* app, float uOffset, float uRotation, float uScale)
+    : app(app), m_uOffset(uOffset), m_uRotation(uRotation), m_uScale(uScale) {
+}
+Mesh3D::~Mesh3D() {
+    // Destructor por defecto
+}
+
+void Mesh3D::initialize() {
+    const std::vector<GLfloat> vertexPosition{
+         0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // arriba, rojo
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // izquierda, verde
+         0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // derecha, azul
+         1.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,  // arriba, blanco
+    };
+
+    const std::vector<GLuint> indices{
+        0, 1, 2, // primer triángulo
+        3, 0, 2  // segundo triángulo
+    };
+
+    glGenVertexArrays(1, &mVAO);
+    glBindVertexArray(mVAO);
+
+    // Buffer para los vértices
+    glGenBuffers(1, &mVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertexPosition.size() * sizeof(GLfloat),
+        vertexPosition.data(),
+        GL_STATIC_DRAW
+    );
+
+    // Buffer para los índices de triangulos
+    glGenBuffers(1, &mEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        indices.size() * sizeof(GLuint),
+        indices.data(),
+        GL_STATIC_DRAW
+    );
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
+    glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
+
+    // Desvincular VAO y VBO
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+}
+
+void Mesh3D::update(float deltatime) {
+    // Actualización de la lógica del mesh (si es necesario)
+    model = glm::translate(
+        glm::mat4(1.0f),
+        glm::vec3(0.0f, 0.0f, m_uOffset)
+    );
+
+    model = glm::rotate(
+        model,
+        glm::radians(m_uRotation * 10.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+
+    model = glm::scale(
+        model,
+        glm::vec3(m_uScale, m_uScale, m_uScale)
+    );
+
+    perspective = glm::perspective(
+        glm::radians(45.0f),
+        app->mWidth / (float)app->mHeight,
+        0.1f,
+        100.0f
+    );
+
+    view = app->mCamera.getViewMatrix();
+
+    glUseProgram(app->mShaderProgram);
+}
+
+void Mesh3D::setUniforms() {
+    // Configuración de uniformes específicos del mesh (si es necesario)
+
+    mModelLoc       = glGetUniformLocation(app->mShaderProgram, "model");
+    mPerspectiveLoc = glGetUniformLocation(app->mShaderProgram, "perspective");
+    mViewLoc        = glGetUniformLocation(app->mShaderProgram, "view");
+
+    if (mModelLoc == -1) {
+        std::cerr << "Warning: uniform model no encontrada en el shader\n";
+        exit(EXIT_FAILURE);
+    } else {
+        glUniformMatrix4fv(mModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+
+    if (mPerspectiveLoc == -1) {
+        std::cerr << "Warning: uniform perspective no encontrada en el shader\n";
+        exit(EXIT_FAILURE);
+    } else {
+        glUniformMatrix4fv(mPerspectiveLoc, 1, GL_FALSE, glm::value_ptr(perspective));
+    }
+
+    if (mViewLoc == -1) {
+        std::cerr << "Warning: uniform view no encontrada en el shader\n";
+        exit(EXIT_FAILURE);
+    } else {
+        glUniformMatrix4fv(mViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    }
+}
+
+void Mesh3D::draw() {
+    // Lógica de dibujo del mesh
+    glUseProgram(app->mShaderProgram);
+    glBindVertexArray(mVAO);
+    glDrawElements(
+        GL_TRIANGLES,
+        6,
+        GL_UNSIGNED_INT,
+        0
+    );
+}
+
+void Mesh3D::cleanup() {
+    // Limpieza de recursos (si es necesario)
+    glDeleteVertexArrays(1, &mVAO);
+    glDeleteBuffers(1, &mVBO);
+    glDeleteBuffers(1, &mEBO);
+}
+
 App gApp;
-Mesh3D gMesh3D;
+Mesh3D mesh1(&gApp, -2.0f, 0.0f, 1.0f);
+Mesh3D mesh2(&gApp, -4.0f, 0.0f, 1.0f);
 
 void initialize(App* app) {
     // Inicializar SDL
@@ -158,8 +310,6 @@ void vertexSpecification(Mesh3D* mesh) {
     g_modelLoc = glGetUniformLocation(gApp.mShaderProgram, "model");
     g_perspectiveLoc = glGetUniformLocation(gApp.mShaderProgram, "perspective");
     g_viewLoc = glGetUniformLocation(gApp.mShaderProgram, "view");
-
-
 }
 
 GLuint createShaderProgram(const char* vertexSource, const char* fragmentSource) {
@@ -236,16 +386,16 @@ void createGraphicsPipeline() {
     gApp.mShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 }
 
-void inputHandling(float deltatime) {
+void inputHandling(App* app, float deltatime) {
     // don't shadow global mouse variables; we use SDL relative motion
     // Manejo de entradas (si es necesario)
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
-            gApp.mRunning = false;
+            app->mRunning = false;
         }
 
         if (event.type == SDL_MOUSEMOTION) {
-            gCamera.mouseLook(event.motion.xrel, event.motion.yrel);
+            app->mCamera.mouseLook(event.motion.xrel, event.motion.yrel);
         }
     }
 
@@ -253,44 +403,42 @@ void inputHandling(float deltatime) {
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
     if (keyboardState[SDL_SCANCODE_ESCAPE]) {
-        gApp.mRunning = false;
+        app->mRunning = false;
     }
 
-    float speed = 0.01f;
+    float speed = 1.2f;
 
     if (keyboardState[SDL_SCANCODE_UP]) {
-        gMesh3D.m_uOffset += speed * deltatime;
-        std::cout << "Offset: " << gMesh3D.m_uOffset << std::endl;
+        mesh1.m_uOffset += speed * deltatime;
+        std::cout << "Offset: " << mesh1.m_uOffset << std::endl;
     }
 
     if (keyboardState[SDL_SCANCODE_DOWN]) {
-        gMesh3D.m_uOffset -= speed * deltatime;
-        std::cout << "Offset: " << gMesh3D.m_uOffset << std::endl;
+        mesh1.m_uOffset -= speed * deltatime;
+        std::cout << "Offset: " << mesh1.m_uOffset << std::endl;
     }
 
     if (keyboardState[SDL_SCANCODE_LEFT]) {
-        gMesh3D.m_uRotation -= speed * deltatime;
-        std::cout << "Offset: " << gMesh3D.m_uRotation << std::endl;
+        mesh1.m_uRotation -= speed * deltatime;
+        std::cout << "Offset: " << mesh1.m_uRotation << std::endl;
     }
     if (keyboardState[SDL_SCANCODE_RIGHT]) {
-        gMesh3D.m_uRotation += speed * deltatime;
-        std::cout << "Offset: " << gMesh3D.m_uRotation << std::endl;
+        mesh1.m_uRotation += speed * deltatime;
+        std::cout << "Offset: " << mesh1.m_uRotation << std::endl;
     }
 
     if (keyboardState[SDL_SCANCODE_W]) {
-        gCamera.moveForward(deltatime);
+        app->mCamera.moveForward(deltatime);
     }
     if (keyboardState[SDL_SCANCODE_S]) {
-        gCamera.moveBackward(deltatime);
+        app->mCamera.moveBackward(deltatime);
     }
     if (keyboardState[SDL_SCANCODE_A]) {
-        gCamera.moveLeft(deltatime);
+        app->mCamera.moveLeft(deltatime);
     }
     if (keyboardState[SDL_SCANCODE_D]) {
-        gCamera.moveRighit(deltatime);
+        app->mCamera.moveRight(deltatime);
     }
-
-
 }
 
 void preDraw() {
@@ -303,6 +451,7 @@ void preDraw() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
+    /*
     glm::mat4 model = glm::translate(
         glm::mat4(1.0f),
         glm::vec3(0.0f, 0.0f, gMesh3D.m_uOffset)
@@ -350,18 +499,19 @@ void preDraw() {
     } else {
         glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     }
+    */
 }
 
 void draw() {
     // Lógica de dibujo (si es necesario)
 
-    glBindVertexArray(gMesh3D.mVAO);
+    /* glBindVertexArray(gMesh3D.mVAO);
     glDrawElements(
         GL_TRIANGLES,
         6,
         GL_UNSIGNED_INT,
         0
-    );
+    ); */
 
     // Alternatively, to draw a single triangle:
     // glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -377,25 +527,32 @@ void mainLoop() {
         float deltatime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
 
-        inputHandling(deltatime);
+        inputHandling(&gApp, deltatime);
 
         preDraw();
-
         draw();
+        mesh1.update(deltatime);
+        mesh2.update(deltatime);
+        
+        mesh1.setUniforms();
+        mesh1.draw();
+        
+        mesh2.setUniforms();
+        mesh2.draw();
 
         SDL_GL_SwapWindow(gApp.mWindow);
     }
 }
 
-void cleanup() {
+void cleanup(App* app) {
     // Limpieza de recursos (si es necesario)
-    glDeleteVertexArrays(1, &gMesh3D.mVAO);
+    /* glDeleteVertexArrays(1, &gMesh3D.mVAO);
     glDeleteBuffers(1, &gMesh3D.mVBO);
-    glDeleteBuffers(1, &gMesh3D.mEBO);
-    glDeleteProgram(gApp.mShaderProgram);
+    glDeleteBuffers(1, &gMesh3D.mEBO); */
+    glDeleteProgram(app->mShaderProgram);
 
-    SDL_GL_DeleteContext(gApp.mGlContext);
-    SDL_DestroyWindow(gApp.mWindow);
+    SDL_GL_DeleteContext(app->mGlContext);
+    SDL_DestroyWindow(app->mWindow);
     SDL_Quit();
 }
 
@@ -404,11 +561,15 @@ int main(int argc, char* argv []) {
 
     createGraphicsPipeline();
 
-    vertexSpecification(&gMesh3D);
+    //vertexSpecification(&gMesh3D);
+    mesh1.initialize();
+    mesh2.initialize();
 
     mainLoop();
 
-    cleanup();
+    mesh1.cleanup();
+    mesh2.cleanup();
+    cleanup(&gApp);
 
     return 0;
 }

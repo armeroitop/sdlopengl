@@ -32,7 +32,7 @@ public:
     void moveForward(float deltaTime);
     void moveBackward(float deltaTime);
     void moveLeft(float deltaTime);
-    void moveRighit(float deltaTime);
+    void moveRight(float deltaTime);
 
     void mouseLook(float mouseX, float mouseY);
 
