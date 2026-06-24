@@ -56,7 +56,7 @@ void initialize(App* app) {
     app->mGlContext = SDL_GL_CreateContext(app->mWindow);
 
     // Configuracion del mouse
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_FALSE);
     // SDL_WarpMouseInWindow(window, 400, 300); // Centrar el mouse en la ventana
 
     // Inicializar GLAD
@@ -71,6 +71,19 @@ void initialize(App* app) {
     std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+
+    // Inicializar ImGui
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForOpenGL(app->mWindow, app->mGlContext);
+    ImGui_ImplOpenGL3_Init();
 }
 
 
@@ -149,16 +162,109 @@ void createGraphicsPipeline() {
     gApp.mShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 }
 
-void inputHandling(App* app, float deltatime) {
-    // don't shadow global mouse variables; we use SDL relative motion
-    // Manejo de entradas (si es necesario)
+void processEvents(App* app){
+
+    ImGuiIO& io = ImGui::GetIO();
+     io.MouseDrawCursor = true;
+   
     while (SDL_PollEvent(&event)) {
+        // (Where your code calls SDL_PollEvent())
+        ImGui_ImplSDL2_ProcessEvent(&event); // Forward your event to backend
+
         if (event.type == SDL_QUIT) {
             app->mRunning = false;
         }
 
-        if (event.type == SDL_MOUSEMOTION) {
+        if (!io.WantCaptureMouse 
+            && event.type == SDL_MOUSEMOTION) {
+           
             app->mCamera.mouseLook(event.motion.xrel, event.motion.yrel);
+
+            //SDL_SetRelativeMouseMode(SDL_TRUE);
+           
+            
+        } else {
+            //io.MouseDrawCursor = true;
+            //SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
+
+    }
+}
+
+void updateInputs(App* app, float deltatime) {
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    SDL_PumpEvents();
+    const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+    if (keyboardState[SDL_SCANCODE_ESCAPE]) {
+        app->mRunning = false;
+    }
+
+    // Si ImGui está usando el teclado, salimos aquí
+    if (io.WantCaptureKeyboard) {
+        return;
+    }
+
+    float speed = 1.2f;
+
+    if (keyboardState[SDL_SCANCODE_UP]) {
+        /* mesh1.m_uOffset += speed * deltatime;
+        std::cout << "Offset: " << mesh1.m_uOffset << std::endl; */
+    }
+
+    if (keyboardState[SDL_SCANCODE_DOWN]) {
+        for (auto& mesh : app->mMeshes) {
+            mesh.m_uOffset -= speed * deltatime;
+            std::cout << "Offset: " << mesh.m_uOffset << std::endl;
+        }
+    }
+
+    if (keyboardState[SDL_SCANCODE_LEFT]) {
+        /* for (auto& mesh : app->mMeshes) {
+            mesh.m_uRotation -= speed * deltatime;
+            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
+        } */
+    }
+    if (keyboardState[SDL_SCANCODE_RIGHT]) {
+        /* for (auto& mesh : app->mMeshes) {
+            mesh.m_uRotation += speed * deltatime;
+            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
+        } */
+    }
+
+    if (keyboardState[SDL_SCANCODE_W]) {
+        app->mCamera.moveForward(deltatime);
+    }
+    if (keyboardState[SDL_SCANCODE_S]) {
+        app->mCamera.moveBackward(deltatime);
+    }
+    if (keyboardState[SDL_SCANCODE_A]) {
+        app->mCamera.moveLeft(deltatime);
+    }
+    if (keyboardState[SDL_SCANCODE_D]) {
+        app->mCamera.moveRight(deltatime);
+    }
+}
+
+void inputHandling_bck(App* app, float deltatime) {
+
+    ImGuiIO& io = ImGui::GetIO();
+    // don't shadow global mouse variables; we use SDL relative motion
+    // Manejo de entradas (si es necesario)
+    while (SDL_PollEvent(&event)) {
+        // (Where your code calls SDL_PollEvent())
+        ImGui_ImplSDL2_ProcessEvent(&event); // Forward your event to backend
+
+        if (event.type == SDL_QUIT) {
+            app->mRunning = false;
+        }
+
+        if (!io.WantCaptureMouse) {
+            if (event.type == SDL_MOUSEMOTION) {
+                app->mCamera.mouseLook(event.motion.xrel, event.motion.yrel);
+            }
         }
     }
 
@@ -167,6 +273,11 @@ void inputHandling(App* app, float deltatime) {
 
     if (keyboardState[SDL_SCANCODE_ESCAPE]) {
         app->mRunning = false;
+    }
+
+        // Si ImGui está usando el teclado, salimos aquí
+    if (io.WantCaptureKeyboard) {
+        return;
     }
 
     float speed = 1.2f;
@@ -231,16 +342,31 @@ void mainLoop() {
 
     // Bucle principal de la aplicación
     while (gApp.mRunning) {
+        
+        // (You should discard mouse/keyboard messages in your game/engine when io.WantCaptureMouse/io.WantCaptureKeyboard are set.)
+        // (After event loop)
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
 
         Uint32 currentTime = SDL_GetTicks();
         float deltatime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
 
-        inputHandling(&gApp, deltatime);
+        processEvents(&gApp);
+        updateInputs(&gApp, deltatime);
 
         for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
         beginFrame();
         gApp.render();
+
+        // Rendering
+        // (Your code clears your framebuffer, renders your other stuff etc.)
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // (Your code calls SDL_GL_SwapWindow() etc.)
 
         SDL_GL_SwapWindow(gApp.mWindow);
     }
@@ -249,6 +375,10 @@ void mainLoop() {
 void cleanup(App* app) {
 
     glDeleteProgram(app->mShaderProgram);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     SDL_GL_DeleteContext(app->mGlContext);
     SDL_DestroyWindow(app->mWindow);
