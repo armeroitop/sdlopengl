@@ -5,7 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "camera.hpp"
-#include "mesh.hpp"
+#include "core/mesh.hpp"
+#include "scene/scene.hpp"
 
 struct App {
     // Dimensiones de la ventana
@@ -24,7 +25,8 @@ struct App {
     glm::mat4 mProjection;
     glm::mat4 mView;
 
-    std::vector<Mesh> mMeshes;
+    //std::vector<Mesh> mMeshes;
+    Scene scene;
 
     void init();
     void update(float dt);

@@ -1,5 +1,6 @@
 #include "app.hpp"
-#include "mesh.hpp"
+#include "core/mesh.hpp"
+#include "scene/object.hpp"
 
 #include <iostream>
 #include <vector>
@@ -12,6 +13,7 @@ void App::init() {
 }
 
 void App::update(float dt) {
+    scene.update(dt);
 }
 
 void App::render() {
@@ -38,7 +40,7 @@ void App::render() {
         exit(EXIT_FAILURE);
     }
 
-    for (auto& mesh : mMeshes) {
+    /* for (auto& mesh : mMeshes) {
         if (modelLoc != -1) {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mesh.getModelMatrix()));
         } else {
@@ -47,5 +49,20 @@ void App::render() {
         }
 
         mesh.draw();
+    } */
+    for (auto& object : scene.getObjects()) {
+
+        if (modelLoc != -1) {
+            glUniformMatrix4fv(
+                modelLoc,
+                1,
+                GL_FALSE,
+                glm::value_ptr(object.getModelMatrix())
+            );
+        } else {
+            std::cerr << "Warning: uniform model no encontrada en el shader\n";
+            exit(EXIT_FAILURE);
+        }
+        object.draw();
     }
 }

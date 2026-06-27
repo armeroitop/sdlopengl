@@ -11,7 +11,8 @@
 
 #include "app.hpp"
 #include "camera.hpp"
-#include "mesh.hpp"
+//#include "mesh.hpp"
+#include "core/mesh.hpp"
 
 #include <imgui.h>
 #include <backends/imgui_impl_sdl2.h>
@@ -215,10 +216,10 @@ void updateInputs(App* app, float deltatime) {
     }
 
     if (keyboardState[SDL_SCANCODE_DOWN]) {
-        for (auto& mesh : app->mMeshes) {
+        /* for (auto& mesh : app->mMeshes) {
             mesh.m_uOffset -= speed * deltatime;
             std::cout << "Offset: " << mesh.m_uOffset << std::endl;
-        }
+        } */
     }
 
     if (keyboardState[SDL_SCANCODE_LEFT]) {
@@ -288,10 +289,10 @@ void inputHandling_bck(App* app, float deltatime) {
     }
 
     if (keyboardState[SDL_SCANCODE_DOWN]) {
-        for (auto& mesh : app->mMeshes) {
+        /* for (auto& mesh : app->mMeshes) {
             mesh.m_uOffset -= speed * deltatime;
             std::cout << "Offset: " << mesh.m_uOffset << std::endl;
-        }
+        } */
     }
 
     if (keyboardState[SDL_SCANCODE_LEFT]) {
@@ -358,7 +359,9 @@ void mainLoop() {
         processEvents(&gApp);
         updateInputs(&gApp, deltatime);
 
-        for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
+        //for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
+        gApp.scene.update(deltatime);
+        
         beginFrame();
         gApp.render();
 
@@ -401,20 +404,32 @@ int main(int argc, char* argv []) {
         3, 0, 2  // segundo triángulo
     };
 
+    Mesh mesh(vertexPosition, indices);
+
+    Transform t1;
+    t1.position = glm::vec3(0.0f, 0.0f, -2.0f);
+
+    Transform t2;
+    t2.position = glm::vec3(0.0f, 0.0f, -4.0f);
+
+    Object obj1(mesh, t1);
+    Object obj2(mesh, t2);
     
     gApp.init();
+    gApp.scene.addObject(obj1);
+    gApp.scene.addObject(obj2);
 
-    gApp.mMeshes.emplace_back(-2.0f, 0.0f, 1.0f);
-    gApp.mMeshes.emplace_back(-4.0f, 0.0f, 1.0f);
+    //gApp.mMeshes.emplace_back(-2.0f, 0.0f, 1.0f);
+    //gApp.mMeshes.emplace_back(-4.0f, 0.0f, 1.0f);
 
-    for (auto& mesh : gApp.mMeshes) {
+    /* for (auto& mesh : gApp.mMeshes) {
         mesh.setVertexData(vertexPosition, indices);
         mesh.initialize();
-    }
+    } */
 
     mainLoop();
 
-    for (auto& mesh : gApp.mMeshes) mesh.cleanup();
+    //for (auto& mesh : gApp.mMeshes) mesh.cleanup();
 
     cleanup(&gApp);
 
