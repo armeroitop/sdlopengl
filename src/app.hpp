@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "camera.hpp"
-#include "core/mesh.hpp"
+#include "geometry/mesh.hpp"
 #include "scene/scene.hpp"
 
 struct App {

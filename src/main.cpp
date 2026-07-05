@@ -12,7 +12,7 @@
 #include "app.hpp"
 #include "camera.hpp"
 //#include "mesh.hpp"
-#include "core/mesh.hpp"
+#include "geometry/mesh.hpp"
 
 #include <imgui.h>
 #include <backends/imgui_impl_sdl2.h>
@@ -404,7 +404,7 @@ int main(int argc, char* argv []) {
         3, 0, 2  // segundo triángulo
     };
 
-    Mesh mesh(vertexPosition, indices);
+    app::geometry::Mesh mesh(vertexPosition, indices);
 
     Transform t1;
     t1.position = glm::vec3(0.0f, 0.0f, -2.0f);

@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 
-#include "core/mesh.hpp"
+#include "geometry/mesh.hpp"
 
 class GLMesh
 {
@@ -12,7 +12,7 @@ private:
     GLsizei indexCount;
 
 public:
-    GLMesh(const Mesh& mesh);
+    GLMesh(const app::geometry::Mesh& mesh);
     ~GLMesh();
 
     void draw() const;

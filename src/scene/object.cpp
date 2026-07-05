@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+using  app::geometry::Mesh;
 
 Object::Object(const Mesh& mesh, const Transform& transform) 
     : mesh(mesh),glmesh(this->mesh),transform(transform)

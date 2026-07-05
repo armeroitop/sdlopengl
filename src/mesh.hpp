@@ -9,7 +9,7 @@
 // Forward declaration de App para evitar dependencias circulares
 struct App;
 
-/*
+
 struct Mesh {
     App* app = nullptr;
 
@@ -40,4 +40,4 @@ struct Mesh {
 
     const glm::mat4& getModelMatrix() const; 
 };
-*/
+

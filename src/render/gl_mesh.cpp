@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+using  app::geometry::Mesh;
+
 GLMesh::GLMesh(const Mesh& mesh) {
     if (mesh.vertices.empty()) {
         std::cerr << "Error: No se han establecido los datos de vértices para el mesh." << std::endl;

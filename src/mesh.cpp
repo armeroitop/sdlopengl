@@ -5,7 +5,7 @@
 #include <iostream>
 #include <glm/gtx/rotate_vector.hpp>
 
-/*
+
 Mesh::Mesh( float uOffset, float uRotation, float uScale)
     :  m_uOffset(uOffset), m_uRotation(uRotation), m_uScale(uScale) {
 }
@@ -106,5 +106,5 @@ void Mesh::cleanup() {
 const glm::mat4& Mesh::getModelMatrix() const {
     return model;
 }
-*/
+
 

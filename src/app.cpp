@@ -1,5 +1,5 @@
 #include "app.hpp"
-#include "core/mesh.hpp"
+#include "geometry/mesh.hpp"
 #include "scene/object.hpp"
 
 #include <iostream>

@@ -1,20 +1,20 @@
 #pragma once
 
-#include "core/mesh.hpp"
-#include "graphics/gl_mesh.hpp"
+#include "geometry/mesh.hpp"
+#include "render/gl_mesh.hpp"
 #include "math/transform.hpp"
 
 
 class Object {
 
 private:
-Mesh mesh;
+app::geometry::Mesh mesh;
 GLMesh glmesh;
 
 public:
     Transform transform;
 
-    Object(const Mesh& mesh, const Transform& transform);
+    Object(const app::geometry:: Mesh& mesh, const Transform& transform);
     ~Object();
 
     void update(float dt);
