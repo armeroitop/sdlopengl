@@ -365,6 +365,9 @@ void mainLoop() {
         beginFrame();
         gApp.render();
 
+        // Dibujar interfaz
+        gApp.mUI.draw();
+
         // Rendering
         // (Your code clears your framebuffer, renders your other stuff etc.)
         ImGui::Render();

@@ -40,16 +40,7 @@ void App::render() {
         exit(EXIT_FAILURE);
     }
 
-    /* for (auto& mesh : mMeshes) {
-        if (modelLoc != -1) {
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mesh.getModelMatrix()));
-        } else {
-            std::cerr << "Warning: uniform model no encontrada en el shader\n";
-            exit(EXIT_FAILURE);
-        }
-
-        mesh.draw();
-    } */
+    // Dibujar objetos
     for (auto& object : scene.getObjects()) {
 
         if (modelLoc != -1) {

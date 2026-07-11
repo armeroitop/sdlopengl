@@ -7,6 +7,7 @@
 #include "camera.hpp"
 #include "geometry/mesh.hpp"
 #include "scene/scene.hpp"
+#include "ui/ui_manager.hpp"
 
 struct App {
     // Dimensiones de la ventana
@@ -25,8 +26,9 @@ struct App {
     glm::mat4 mProjection;
     glm::mat4 mView;
 
-    //std::vector<Mesh> mMeshes;
     Scene scene;
+
+    ui::UIManager mUI;
 
     void init();
     void update(float dt);
