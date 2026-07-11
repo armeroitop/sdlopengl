@@ -24,5 +24,13 @@ void Scene::draw() {
 }
 
 const std::vector<Object>& Scene::getObjects() const {
-   return mObjects;
+    return mObjects;
+}
+
+Object& Scene::createCubeMesh(const Transform& transform) {
+    mObjects.emplace_back(
+        app::geometry::MeshFactory::createCubeMesh(),
+        transform
+    );
+    return mObjects.back();
 }

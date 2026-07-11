@@ -1,13 +1,19 @@
 #pragma once
 
+#include "editor/editor_context.hpp"
+#include "scene/scene.hpp"
+
 
 namespace ui {
-    
+
 class Toolbar {
+
 private:
-    /* data */
+    editor::EditorContext& mContext;
+    Scene& mScene;
+
 public:
-    Toolbar(/* args */);
+    Toolbar(editor::EditorContext& context, Scene& scene);
     ~Toolbar();
 
     void draw();

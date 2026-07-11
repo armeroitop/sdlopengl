@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "object.hpp"
+#include "geometry/mesh_factory.hpp"
 
 class Scene
 {
@@ -15,6 +16,8 @@ public:
     void update(float dt);
     void draw();
     const std::vector<Object>& getObjects() const;
+
+    Object& createCubeMesh(const Transform& transform);
 };
 
 

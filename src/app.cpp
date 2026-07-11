@@ -8,6 +8,10 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 
+App::App()
+    : mUI(mContext, scene) {
+}
+
 void App::init() {
     aspectRatio = mWidth / static_cast<float>(mHeight);
 }

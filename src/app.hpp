@@ -8,6 +8,7 @@
 #include "geometry/mesh.hpp"
 #include "scene/scene.hpp"
 #include "ui/ui_manager.hpp"
+#include "editor/editor_context.hpp"
 
 struct App {
     // Dimensiones de la ventana
@@ -29,6 +30,10 @@ struct App {
     Scene scene;
 
     ui::UIManager mUI;
+
+    editor::EditorContext mContext;
+
+    App();
 
     void init();
     void update(float dt);
