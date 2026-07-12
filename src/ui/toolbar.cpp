@@ -13,8 +13,10 @@ Toolbar::~Toolbar() {
 
 void Toolbar::draw() {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(60, ImGui::GetIO().DisplaySize.y),
-        ImGuiCond_Always);
+    ImGui::SetNextWindowSize(
+        ImVec2(60, ImGui::GetIO().DisplaySize.y),
+        ImGuiCond_Always
+    );
 
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove |

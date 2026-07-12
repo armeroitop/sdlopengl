@@ -1,12 +1,10 @@
 #include "mesh_factory.hpp"
 
 namespace app::geometry {
-MeshFactory::MeshFactory(/* args */)
-{
+MeshFactory::MeshFactory(/* args */) {
 }
 
-MeshFactory::~MeshFactory()
-{
+MeshFactory::~MeshFactory() {
 }
 Mesh app::geometry::MeshFactory::createRectangleMesh() {
 
@@ -25,10 +23,9 @@ Mesh app::geometry::MeshFactory::createRectangleMesh() {
     return Mesh(vertexPosition, indices);
 }
 
-Mesh app::geometry::MeshFactory::createCubeMesh()
-{
-    const std::vector<GLfloat> vertices
-    {
+Mesh app::geometry::MeshFactory::createCubeMesh() {
+
+    const std::vector<GLfloat> vertices{
         // Cara frontal (roja)
         -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
          0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
@@ -42,8 +39,7 @@ Mesh app::geometry::MeshFactory::createCubeMesh()
         -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
     };
 
-    const std::vector<GLuint> indices
-    {
+    const std::vector<GLuint> indices{
         // Frontal
         0,1,2,
         2,3,0,
@@ -72,4 +68,4 @@ Mesh app::geometry::MeshFactory::createCubeMesh()
     return Mesh(vertices, indices);
 }
 
-}
+} // namespace app::geometry

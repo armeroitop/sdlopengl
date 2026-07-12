@@ -28,9 +28,15 @@ const std::vector<Object>& Scene::getObjects() const {
 }
 
 Object& Scene::createCubeMesh(const Transform& transform) {
+
+    std::string name = "cube_" + std::to_string(mNextId);
+
     mObjects.emplace_back(
+        mNextId++,
+        name,
         app::geometry::MeshFactory::createCubeMesh(),
         transform
     );
+    
     return mObjects.back();
 }

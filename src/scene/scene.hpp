@@ -7,6 +7,7 @@ class Scene
 {
 private:
     std::vector<Object> mObjects;
+    uint32_t mNextId = 1;
 
 public:
     Scene(/* args */);
