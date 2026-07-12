@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "camera.hpp"
+#include "camera/camera.hpp"
 #include "geometry/mesh.hpp"
 #include "scene/scene.hpp"
 #include "ui/ui_manager.hpp"

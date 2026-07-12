@@ -9,9 +9,8 @@
 #include <vector>
 #include <fstream>
 
-#include "app.hpp"
-#include "camera.hpp"
-//#include "mesh.hpp"
+#include "app/app.hpp"
+#include "camera/camera.hpp"
 #include "geometry/mesh.hpp"
 #include "geometry/mesh_factory.hpp"
 
@@ -23,10 +22,9 @@
 SDL_Event event;
 
 App gApp;
-//Mesh mesh1(-2.0f, 0.0f, 1.0f);
-//Mesh mesh2(-4.0f, 0.0f, 1.0f);
 
 void initialize(App* app) {
+
     // Inicializar SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "Error SDL_Init: " << SDL_GetError() << std::endl;
@@ -250,78 +248,6 @@ void updateInputs(App* app, float deltatime) {
     }
 }
 
-void inputHandling_bck(App* app, float deltatime) {
-
-    ImGuiIO& io = ImGui::GetIO();
-    // don't shadow global mouse variables; we use SDL relative motion
-    // Manejo de entradas (si es necesario)
-    while (SDL_PollEvent(&event)) {
-        // (Where your code calls SDL_PollEvent())
-        ImGui_ImplSDL2_ProcessEvent(&event); // Forward your event to backend
-
-        if (event.type == SDL_QUIT) {
-            app->mRunning = false;
-        }
-
-        if (!io.WantCaptureMouse) {
-            if (event.type == SDL_MOUSEMOTION) {
-                app->mCamera.mouseLook(event.motion.xrel, event.motion.yrel);
-            }
-        }
-    }
-
-    SDL_PumpEvents();
-    const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-
-    if (keyboardState[SDL_SCANCODE_ESCAPE]) {
-        app->mRunning = false;
-    }
-
-        // Si ImGui está usando el teclado, salimos aquí
-    if (io.WantCaptureKeyboard) {
-        return;
-    }
-
-    float speed = 1.2f;
-
-    if (keyboardState[SDL_SCANCODE_UP]) {
-        /* mesh1.m_uOffset += speed * deltatime;
-        std::cout << "Offset: " << mesh1.m_uOffset << std::endl; */
-    }
-
-    if (keyboardState[SDL_SCANCODE_DOWN]) {
-        /* for (auto& mesh : app->mMeshes) {
-            mesh.m_uOffset -= speed * deltatime;
-            std::cout << "Offset: " << mesh.m_uOffset << std::endl;
-        } */
-    }
-
-    if (keyboardState[SDL_SCANCODE_LEFT]) {
-        /* for (auto& mesh : app->mMeshes) {
-            mesh.m_uRotation -= speed * deltatime;
-            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
-        } */
-    }
-    if (keyboardState[SDL_SCANCODE_RIGHT]) {
-        /* for (auto& mesh : app->mMeshes) {
-            mesh.m_uRotation += speed * deltatime;
-            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
-        } */
-    }
-
-    if (keyboardState[SDL_SCANCODE_W]) {
-        app->mCamera.moveForward(deltatime);
-    }
-    if (keyboardState[SDL_SCANCODE_S]) {
-        app->mCamera.moveBackward(deltatime);
-    }
-    if (keyboardState[SDL_SCANCODE_A]) {
-        app->mCamera.moveLeft(deltatime);
-    }
-    if (keyboardState[SDL_SCANCODE_D]) {
-        app->mCamera.moveRight(deltatime);
-    }
-}
 
 void beginFrame() {
 
@@ -393,13 +319,12 @@ void cleanup(App* app) {
 }
 
 int main(int argc, char* argv []) {
+
     initialize(&gApp);
 
     createGraphicsPipeline();
 
-
     gApp.init();
-
 
     mainLoop();
 
