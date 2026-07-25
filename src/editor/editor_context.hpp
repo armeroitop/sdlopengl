@@ -4,13 +4,13 @@
 
 namespace editor {
 
-class EditorContext
-{
+class EditorContext {
 private:
     Tool mTool = Tool::Select;
 
-    uint32_t mSelectedObjectId = 0;
+    uint32_t mSelectedObjectId = mNoObjectIdSelected;
 public:
+    static constexpr uint32_t mNoObjectIdSelected = 0;
 
     EditorContext(/* args */);
     ~EditorContext();
@@ -20,6 +20,9 @@ public:
 
     void setSelectedObjectId(uint32_t id);
     uint32_t getSelectedObjectId() const;
+
+    bool hasSelection() const;
+    void clearSelection();
 
 };
 

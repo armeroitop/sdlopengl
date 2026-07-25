@@ -19,6 +19,11 @@ public:
     const std::vector<Object>& getObjects() const;
 
     Object& createCubeMesh(const Transform& transform);
+
+    const Object* findObject(uint32_t id) const;
+    Object* findObject(uint32_t id);
+
+
 };
 
 

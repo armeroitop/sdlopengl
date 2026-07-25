@@ -37,6 +37,28 @@ Object& Scene::createCubeMesh(const Transform& transform) {
         app::geometry::MeshFactory::createCubeMesh(),
         transform
     );
-    
+
     return mObjects.back();
+}
+
+const Object* Scene::findObject(uint32_t id) const {
+    
+    for (const auto& object : mObjects) {
+        if (object.getId() == id) {
+            return &object;
+        }
+    }
+
+    return nullptr;
+}
+
+Object* Scene::findObject(uint32_t id) {
+
+    for (auto& object : mObjects) {
+        if (object.getId() == id) {
+            return &object;
+        }
+    }
+
+    return nullptr;
 }

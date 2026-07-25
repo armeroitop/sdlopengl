@@ -2,12 +2,10 @@
 
 namespace editor {
 
-EditorContext::EditorContext(/* args */)
-{
+EditorContext::EditorContext(/* args */) {
 }
 
-EditorContext::~EditorContext()
-{
+EditorContext::~EditorContext() {
 }
 
 Tool EditorContext::getTool() const {
@@ -25,6 +23,14 @@ void EditorContext::setSelectedObjectId(uint32_t id) {
 uint32_t EditorContext::getSelectedObjectId() const {
     return mSelectedObjectId;
 }
-    
+
+bool EditorContext::hasSelection() const {
+    return (mSelectedObjectId != mNoObjectIdSelected) ? true : false;
+}
+
+void EditorContext::clearSelection() {
+    mSelectedObjectId = mNoObjectIdSelected;
+}
+
 } // namespace editor
 

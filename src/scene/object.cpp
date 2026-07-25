@@ -8,24 +8,24 @@ Object::Object(uint32_t id,
     const Transform& transform)
     : mId(id),
     mName(name),
-    mesh(mesh),
-    glmesh(this->mesh),
-    transform(transform) {
+    mMesh(mesh),
+    mGLmesh(this->mMesh),
+    mTransform(transform) {
 }
 
 Object::~Object() {
 }
 
 void Object::update(float dt) {
-    transform.rotation.y += dt * 10.0f;
+    mTransform.rotation.y += dt * 10.0f;
 }
 
 void Object::draw() const {
-    glmesh.draw();
+    mGLmesh.draw();
 }
 
 glm::mat4 Object::getModelMatrix() const {
-    return transform.getModelMatrix();
+    return mTransform.getModelMatrix();
 }
 
 uint32_t Object::getId() const {
@@ -34,4 +34,12 @@ uint32_t Object::getId() const {
 
 std::string Object::getName() const {
     return mName;
+}
+
+Transform& Object::getTransform() {
+    return mTransform;
+}
+
+const Transform& Object::getTransform() const {
+    return mTransform;
 }

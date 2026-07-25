@@ -10,13 +10,13 @@
 class Object {
 
 private:
-    app::geometry::Mesh mesh;
-    GLMesh glmesh;
+    app::geometry::Mesh mMesh;
+    GLMesh mGLmesh;
     uint32_t mId;
     std::string mName;
+    Transform mTransform;
 
 public:
-    Transform transform;
 
     Object(uint32_t id,
         const std::string& name,
@@ -30,6 +30,9 @@ public:
     glm::mat4 getModelMatrix() const;
     uint32_t getId() const;
     std::string getName() const;
+
+    Transform& getTransform();
+    const Transform& getTransform() const;
 };
 
 
