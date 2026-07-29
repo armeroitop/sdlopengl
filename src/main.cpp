@@ -79,7 +79,7 @@ void initialize(App* app) {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(app->mWindow, app->mGlContext);
@@ -258,7 +258,10 @@ void beginFrame() {
     glEnable(GL_CULL_FACE); // opcional: cull front/back faces
     glCullFace(GL_BACK);    // opcional
 
-    glViewport(0, 0, 800, 600);
+    int w,h;
+    SDL_GL_GetDrawableSize(gApp.mWindow, &w, &h);
+
+    glViewport(0, 0, w, h);
 
     // Limpiar buffers
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -277,7 +280,7 @@ void mainLoop() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow(); // Show demo window! :)
+        //ImGui::ShowDemoWindow(); // Show demo window! :)
 
         Uint32 currentTime = SDL_GetTicks();
         float deltatime = (currentTime - lastTime) / 1000.0f;
