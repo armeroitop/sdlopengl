@@ -14,7 +14,6 @@ void Scene::update(float dt) {
     for (auto& obj : mObjects) {
         obj.update(dt);
     }
-
 }
 
 void Scene::draw() {

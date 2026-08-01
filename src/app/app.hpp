@@ -9,11 +9,12 @@
 #include "scene/scene.hpp"
 #include "ui/ui_manager.hpp"
 #include "editor/editor_context.hpp"
+#include "render/renderer.hpp"
 
 struct App {
     // Dimensiones de la ventana
-    const int mWidth = 800;
-    const int mHeight = 600;
+    const int mWidth = 1280;
+    const int mHeight = 720;
     float aspectRatio;
 
     SDL_Window* mWindow = nullptr;
@@ -21,21 +22,31 @@ struct App {
 
     bool mRunning = true;
 
-    GLuint mShaderProgram = 0;
+    //GLuint mShaderProgram = 0;
     Camera mCamera;
 
-    glm::mat4 mProjection;
-    glm::mat4 mView;
+    //glm::mat4 mProjection;
+    //glm::mat4 mView;
 
     Scene scene;
+    editor::EditorContext mContext;
 
     ui::UIManager mUI;
 
-    editor::EditorContext mContext;
+    render::Renderer mRenderer;
+
 
     App();
 
     void init();
     void update(float dt);
     void render();
+
+    void run();
+    void shutdown();
+    void processEvents();
+    void renderFrame();
+    void updateInputs(float deltaTime);
+
+    void initializeRenderer();
 };

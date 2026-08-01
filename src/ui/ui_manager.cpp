@@ -24,14 +24,47 @@ UIManager::~UIManager() {
 
 void UIManager::draw() {
 
-    mDockLayout.begin();
+    //mDockLayout.begin();
 
     mToolbar.draw();
     mHierarchy.draw();
     mInspector.draw();
-    mViewport.draw();
+    //mViewport.draw();
 
     mDockLayout.end();
+}
+
+void UIManager::begin() {
+
+    mDockLayout.begin();
+    mViewport.begin();
+}
+
+void UIManager::end() {
+    mToolbar.draw();
+    mHierarchy.draw();
+
+    mViewport.end();
+
+    mInspector.draw();
+
+    mDockLayout.end();
+}
+
+void UIManager::beginViewportRender() {
+    mViewport.beginRender();
+}
+
+void UIManager::endViewportRender() {
+    mViewport.endRender();
+}
+
+Viewport& UIManager::getViewport() {
+    return mViewport;
+}
+
+const Viewport& UIManager::getViewport() const {
+    return mViewport;
 }
 
 } // namespace ui

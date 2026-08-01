@@ -19,11 +19,18 @@ private:
     Viewport mViewport;
 
 public:
-    UIManager(editor::EditorContext& context , Scene& scene);
+    UIManager(editor::EditorContext& context, Scene& scene);
     ~UIManager();
     void draw();
+    void begin();
+    void end();
 
-    
+    void beginViewportRender();
+    void endViewportRender();
+
+    Viewport& getViewport();
+    const Viewport& getViewport() const;
+
 };
 } // namespace ui
 
