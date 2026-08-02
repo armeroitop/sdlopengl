@@ -138,8 +138,6 @@ void App::run() {
 
 void App::shutdown() {
 
-    glDeleteProgram(mRenderer.getShaderProgram());
-
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
