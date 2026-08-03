@@ -39,7 +39,7 @@ void Viewport::draw() {
     ImGui::Text("Viewport");
     ImGui::Separator();
 
-    ImGui::Text("Size: %.0f x %.0f", size.x, size.y);
+    //ImGui::Text("Size: %.0f x %.0f", size.x, size.y);
     ImGui::End();
 }
 
@@ -77,7 +77,7 @@ void Viewport::beginRender() {
         mFramebuffer.height()
     );
 
-    printf("%d x %d\n", mFramebuffer.width(), mFramebuffer.height());
+    //printf("%d x %d\n", mFramebuffer.width(), mFramebuffer.height());
 
     // limpieza de color y profundidad
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -102,7 +102,7 @@ void Viewport::end() {
         );
     }
 
-    ImGui::Text("Size: %.0f x %.0f", mSize.x, mSize.y);
+    //ImGui::Text("Size: %.0f x %.0f", mSize.x, mSize.y);
 
     ImGui::End();
 }

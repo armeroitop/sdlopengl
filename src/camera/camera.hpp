@@ -7,28 +7,27 @@
 
 class Camera {
 private:
+    // Transform
     glm::vec3 mEye;
     glm::vec3 mViewDirection;
     glm::vec3 mUpVector;
-    glm::vec2 mLastMousePosition;
+    
+    // Orbit
+    glm::vec3 mPivot{0.0f};
 
-    glm::mat4 mViewMatrix;
-    glm::mat4 mPerspectiveMatrix;
-
-    float fov = 45.0f;
-    float aspect = 800.0f / 600.0f;
-    float nearPlane = 0.1f;
-    float farPlane = 100.0f;
-
-    float mSpeed = 0.0f;
-    float mouseX = 0.0f;
-    float mouseY = 0.0f;
-    // mouse control state
+    // Orientation
     float mYaw = -90.0f;
     float mPitch = 0.0f;
     float mSensitivity = 0.1f;
-    bool mFirstMouse = true;
 
+    // Projection
+    float mFov = 45.0f;
+    float mNearPlane = 0.1f;
+    float mFarPlane = 100.0f;
+
+    // Movement
+    float mSpeed = 0.0f;
+    
 
 public:
     Camera(/* args */);
@@ -43,7 +42,6 @@ public:
     void moveRight(float deltaTime);
 
     void mouseLook(float mouseX, float mouseY);
-
-
-
+    void zoom(float amount);
+    void pan(float dx, float dy);
 };

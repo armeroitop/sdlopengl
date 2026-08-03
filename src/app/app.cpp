@@ -86,7 +86,7 @@ void App::update(float dt) {
 }
 
 void App::render() {
-    mRenderer.render(scene, mCamera, mUI.getViewport());
+    mRenderer.render(scene, mCamera, mUI.getViewport(), mContext);
 }
 
 void App::run() {
@@ -107,8 +107,10 @@ void App::run() {
         float deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
 
+
         processEvents();
-        updateInputs(deltaTime);
+        //updateInputs(deltaTime); // para eliminar
+        mCameraController.update(mCamera, mInput, deltaTime);
 
         //for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
         scene.update(deltaTime);
@@ -149,9 +151,7 @@ void App::shutdown() {
 
 void App::processEvents() {
 
-    ImGuiIO& io = ImGui::GetIO();
-    io.MouseDrawCursor = true;
-
+    mInput.reset();
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -162,75 +162,31 @@ void App::processEvents() {
             mRunning = false;
         }
 
-        if (!io.WantCaptureMouse
-            && event.type == SDL_MOUSEMOTION) {
-
-            mCamera.mouseLook(event.motion.xrel, event.motion.yrel);
-
-            //SDL_SetRelativeMouseMode(SDL_TRUE);
-
-
-        } else {
-            //io.MouseDrawCursor = true;
-            //SDL_SetRelativeMouseMode(SDL_FALSE);
+        if (event.type == SDL_MOUSEMOTION) {
+            mInput.mouseDelta.x = event.motion.xrel;
+            mInput.mouseDelta.y = event.motion.yrel;
         }
 
+        if (event.type == SDL_MOUSEWHEEL) {
+            mInput.wheelDelta = event.wheel.preciseY;
+        }
+
+
     }
+
+    // Teclado
+    const uint8_t* keyboardState = SDL_GetKeyboardState(NULL);
+    mInput.keyA = keyboardState[SDL_SCANCODE_A];
+    mInput.keyW = keyboardState[SDL_SCANCODE_W];
+    mInput.keyS = keyboardState[SDL_SCANCODE_S];
+    mInput.keyD = keyboardState[SDL_SCANCODE_D];
+
+    // Mouse
+    mInput.leftMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT));
+    mInput.middleMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_MIDDLE));
+    mInput.rightMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT));
+
+
 }
 
-void App::updateInputs(float deltaTime) {
 
-    ImGuiIO& io = ImGui::GetIO();
-
-    SDL_PumpEvents();
-    const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-
-    if (keyboardState[SDL_SCANCODE_ESCAPE]) {
-        mRunning = false;
-    }
-
-    // Si ImGui está usando el teclado, salimos aquí
-    if (io.WantCaptureKeyboard) {
-        return;
-    }
-
-    float speed = 1.2f;
-
-    if (keyboardState[SDL_SCANCODE_UP]) {
-        /* mesh1.m_uOffset += speed * deltatime;
-        std::cout << "Offset: " << mesh1.m_uOffset << std::endl; */
-    }
-
-    if (keyboardState[SDL_SCANCODE_DOWN]) {
-        /* for (auto& mesh : mMeshes) {
-            mesh.m_uOffset -= speed * deltatime;
-            std::cout << "Offset: " << mesh.m_uOffset << std::endl;
-        } */
-    }
-
-    if (keyboardState[SDL_SCANCODE_LEFT]) {
-        /* for (auto& mesh : mMeshes) {
-            mesh.m_uRotation -= speed * deltatime;
-            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
-        } */
-    }
-    if (keyboardState[SDL_SCANCODE_RIGHT]) {
-        /* for (auto& mesh : mMeshes) {
-            mesh.m_uRotation += speed * deltatime;
-            std::cout << "Rotation: " << mesh.m_uRotation << std::endl;
-        } */
-    }
-
-    if (keyboardState[SDL_SCANCODE_W]) {
-        mCamera.moveForward(deltaTime);
-    }
-    if (keyboardState[SDL_SCANCODE_S]) {
-        mCamera.moveBackward(deltaTime);
-    }
-    if (keyboardState[SDL_SCANCODE_A]) {
-        mCamera.moveLeft(deltaTime);
-    }
-    if (keyboardState[SDL_SCANCODE_D]) {
-        mCamera.moveRight(deltaTime);
-    }
-}

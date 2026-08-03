@@ -5,11 +5,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "camera/camera.hpp"
+#include "camera/camera_controller.hpp"
 #include "geometry/mesh.hpp"
 #include "scene/scene.hpp"
 #include "ui/ui_manager.hpp"
 #include "editor/editor_context.hpp"
 #include "render/renderer.hpp"
+#include "input/input.hpp"
 
 struct App {
     // Dimensiones de la ventana
@@ -21,12 +23,10 @@ struct App {
     SDL_GLContext mGlContext = nullptr;
 
     bool mRunning = true;
-
-    //GLuint mShaderProgram = 0;
+    
     Camera mCamera;
-
-    //glm::mat4 mProjection;
-    //glm::mat4 mView;
+    camera::CameraController mCameraController;
+    input::Input mInput;
 
     Scene scene;
     editor::EditorContext mContext;
@@ -46,7 +46,6 @@ struct App {
     void shutdown();
     void processEvents();
     void renderFrame();
-    void updateInputs(float deltaTime);
 
     void initializeRenderer();
 };

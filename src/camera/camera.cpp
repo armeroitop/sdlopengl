@@ -8,12 +8,10 @@ Camera::Camera(/* args */) {
     mEye = glm::vec3(0.0f, 0.0f, 0.0f);
     mViewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
     mUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
-    mSpeed = 0.1f;
-    mLastMousePosition = glm::vec2(0.0f, 0.0f);
+    mSpeed = 0.5f;
     mYaw = -90.0f;
     mPitch = 0.0f;
     mSensitivity = 0.1f;
-    mFirstMouse = true;
 }
 
 Camera::~Camera() {
@@ -30,13 +28,12 @@ glm::mat4 Camera::getViewMatrix() const {
 
 glm::mat4 Camera::getPerspectiveMatrix(float aspect) const {
 
-    glm::mat4 perspective = glm::perspective(
-        glm::radians(fov),
+    return glm::perspective(
+        glm::radians(mFov),
         aspect,
-        nearPlane,
-        farPlane
+        mNearPlane,
+        mFarPlane
     );
-    return perspective;
 }
 
 void Camera::moveForward(float deltaTime) {
@@ -91,12 +88,30 @@ void Camera::mouseLook(float xrel, float yrel) {
     // clamp pitch to avoid flipping
     if (mPitch > 89.0f) mPitch = 89.0f;
     if (mPitch < -89.0f) mPitch = -89.0f;
-    
+
     // calculate new front vector from yaw and pitch
     glm::vec3 front;
     front.x = cos(glm::radians(mYaw)) * cos(glm::radians(mPitch));
     front.y = sin(glm::radians(mPitch));
     front.z = sin(glm::radians(mYaw)) * cos(glm::radians(mPitch));
     mViewDirection = glm::normalize(front);
+}
+
+void Camera::zoom(float amount) {
+    mEye += amount * mViewDirection;
+}
+
+void Camera::pan(float dx, float dy) {
+    const glm::vec3 right = glm::normalize(glm::cross(mViewDirection, mUpVector));
+
+    const glm::vec3 displacement =
+        right * dx +
+        mUpVector * dy;
+
+    constexpr float panSpeed = 0.01f;
+    mEye += displacement * panSpeed;
+
+    // Futuro. Mover también al mPivot
+    // mPivot += displacement * panSpeed;
 }
 

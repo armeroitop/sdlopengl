@@ -96,7 +96,7 @@ bool render::Shader::load(const std::string& vertexFile, const std::string& frag
 }
 
 void Shader::use() const {
-    printf("Shader program = %u\n", mProgram);
+    //printf("Shader program = %u\n", mProgram);
     glUseProgram(mProgram);
 }
 

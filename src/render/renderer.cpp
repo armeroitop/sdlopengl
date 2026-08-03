@@ -13,7 +13,7 @@ Renderer::Renderer(/* args */) {
 Renderer::~Renderer() {
 }
 
-void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport) {
+void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport, const editor::EditorContext& context) {
 
     mShader.use();
 
@@ -25,8 +25,16 @@ void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport
 
     // Dibujar objetos
     for (auto& object : scene.getObjects()) {
+        const bool isSelected =
+            object.getId() == context.getSelectedObjectId();
 
         mShader.setMat4("model", object.getModelMatrix());
+
+        if (isSelected) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
         object.draw();
     }
 }

@@ -5,6 +5,7 @@
 #include "camera/camera.hpp"
 #include "ui/viewport.hpp"
 #include "shader.hpp"
+#include "editor/editor_context.hpp"
 
 namespace render {
 
@@ -24,7 +25,8 @@ public:
     void render(
         Scene& scene,
         Camera& camera,
-        const ui::Viewport& viewport
+        const ui::Viewport& viewport,
+        const editor::EditorContext& context
     );
 
     //std::string loadShaderSource(const char* filename);
