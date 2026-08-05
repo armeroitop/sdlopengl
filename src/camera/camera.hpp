@@ -8,7 +8,7 @@
 class Camera {
 private:
     // Transform
-    glm::vec3 mEye;
+    glm::vec3 mPosition;
     glm::vec3 mViewDirection;
     glm::vec3 mUpVector;
     
@@ -27,6 +27,9 @@ private:
 
     // Movement
     float mSpeed = 0.0f;
+
+    glm::vec3 getForward() const;
+    glm::vec3 getForwardNormaliced() const;
     
 
 public:
@@ -40,6 +43,7 @@ public:
     void moveBackward(float deltaTime);
     void moveLeft(float deltaTime);
     void moveRight(float deltaTime);
+    void translate(const glm::vec3& delta);
 
     void mouseLook(float mouseX, float mouseY);
     void zoom(float amount);

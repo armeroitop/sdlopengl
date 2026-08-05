@@ -4,9 +4,20 @@
 
 
 
+glm::vec3 Camera::getForward() const {
+    return glm::normalize(mPivot - mPosition);
+}
+
+glm::vec3 Camera::getForwardNormaliced() const {
+    glm::vec3 forward = getForward();
+    forward.y = 0.0f;
+    return glm::normalize(forward);
+}
+
 Camera::Camera(/* args */) {
-    mEye = glm::vec3(0.0f, 0.0f, 0.0f);
-    mViewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+    mPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+    //mViewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+    mPivot = glm::vec3(0.0f, 0.0f, 2.0f);
     mUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
     mSpeed = 0.5f;
     mYaw = -90.0f;
@@ -20,8 +31,9 @@ Camera::~Camera() {
 
 glm::mat4 Camera::getViewMatrix() const {
     return glm::lookAt(
-        mEye,
-        mEye + mViewDirection,
+        mPosition,
+        //mPosition + mViewDirection,
+        mPivot,
         mUpVector
     );
 }
@@ -39,39 +51,37 @@ glm::mat4 Camera::getPerspectiveMatrix(float aspect) const {
 void Camera::moveForward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
-    glm::vec3 forward = glm::normalize(glm::vec3(
-        mViewDirection.x,
-        0.0f,
-        mViewDirection.z
-    ));
+    glm::vec3 forwardNormaliced = getForwardNormaliced();
 
-    mEye += forward * velocity;
+    translate(forwardNormaliced * velocity);
 }
 
 void Camera::moveBackward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
-    glm::vec3 forward = glm::normalize(glm::vec3(
-        mViewDirection.x,
-        0.0f,
-        mViewDirection.z
-    ));
+    glm::vec3 forwardNormaliced = getForwardNormaliced();
 
-    mEye -= forward * velocity;
+    translate(-forwardNormaliced * velocity);
 }
 
 void Camera::moveLeft(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
-    glm::vec3 right = glm::normalize(glm::cross(mViewDirection, mUpVector));
-    mEye -= right * velocity;
+    glm::vec3 right = glm::normalize(glm::cross(getForward(), mUpVector));
+    translate(-right * velocity);
 }
 
 void Camera::moveRight(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
-    glm::vec3 right = glm::normalize(glm::cross(mViewDirection, mUpVector));
-    mEye += right * velocity;
+    glm::vec3 right = glm::normalize(glm::cross(getForward(), mUpVector));
+
+    translate(right * velocity);
+}
+
+void Camera::translate(const glm::vec3& delta) {
+    mPosition += delta;
+    mPivot += delta;
 }
 
 void Camera::mouseLook(float xrel, float yrel) {
@@ -98,20 +108,20 @@ void Camera::mouseLook(float xrel, float yrel) {
 }
 
 void Camera::zoom(float amount) {
-    mEye += amount * mViewDirection;
+    // TODO: cambiar a 
+    // direction = normalize(mPivot - mPosition)
+    translate(amount * getForward());
 }
 
 void Camera::pan(float dx, float dy) {
-    const glm::vec3 right = glm::normalize(glm::cross(mViewDirection, mUpVector));
+    const glm::vec3 right = glm::normalize(glm::cross(getForward(), mUpVector));
 
     const glm::vec3 displacement =
-        right * dx +
+        right * (-dx) +
         mUpVector * dy;
 
     constexpr float panSpeed = 0.01f;
-    mEye += displacement * panSpeed;
 
-    // Futuro. Mover también al mPivot
-    // mPivot += displacement * panSpeed;
+    translate(displacement * panSpeed);
 }
 
