@@ -11,9 +11,9 @@ private:
     glm::vec3 mPosition;
     glm::vec3 mViewDirection;
     glm::vec3 mUpVector;
-    
+
     // Orbit
-    glm::vec3 mPivot{0.0f};
+    glm::vec3 mPivot{ 0.0f };
 
     // Orientation
     float mYaw = -90.0f;
@@ -30,7 +30,14 @@ private:
 
     glm::vec3 getForward() const;
     glm::vec3 getForwardNormaliced() const;
-    
+
+    void rotateAround(
+        glm::vec3& movinPoint,
+        const glm::vec3& fixedPoint,
+        float xrel,
+        float yrel
+    );
+
 
 public:
     Camera(/* args */);
@@ -45,7 +52,8 @@ public:
     void moveRight(float deltaTime);
     void translate(const glm::vec3& delta);
 
-    void mouseLook(float mouseX, float mouseY);
+    void mouseLook(float xrel, float yrel);
+    void orbit(float xrel, float yrel);
     void zoom(float amount);
     void pan(float dx, float dy);
 };

@@ -14,10 +14,42 @@ glm::vec3 Camera::getForwardNormaliced() const {
     return glm::normalize(forward);
 }
 
+void Camera::rotateAround(
+    glm::vec3& movinPoint,
+    const glm::vec3& fixedPoint,
+    float xrel,
+    float yrel) {
+
+    float distance = glm::length(movinPoint - fixedPoint);
+
+    glm::vec3 direction = glm::normalize(movinPoint - fixedPoint);
+
+    float yaw = glm::degrees(atan2(direction.z, direction.x));
+    float pitch = glm::degrees(glm::asin(direction.y));
+
+    // update yaw and pitch (invert Y if needed)
+    yaw += xrel * mSensitivity;
+    pitch -= yrel * mSensitivity;
+
+    // clamp pitch to avoid flipping
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+
+    // calculate new front vector from yaw and pitch
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction = glm::normalize(direction);
+
+    movinPoint = fixedPoint + distance * direction;
+}
+
+
+
 Camera::Camera(/* args */) {
     mPosition = glm::vec3(0.0f, 0.0f, 3.0f);
     //mViewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-    mPivot = glm::vec3(0.0f, 0.0f, 2.0f);
+    mPivot = glm::vec3(0.0f, 0.0f, -2.0f);
     mUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
     mSpeed = 0.5f;
     mYaw = -90.0f;
@@ -85,26 +117,11 @@ void Camera::translate(const glm::vec3& delta) {
 }
 
 void Camera::mouseLook(float xrel, float yrel) {
-    // Parameters are treated as relative mouse movement (deltas)
-    float deltaY = yrel;
-    float deltaX = xrel;
+    rotateAround(mPivot, mPosition, xrel, yrel);
+}
 
-    //std::cout << "Mouse delta:(" << deltaX << ", " << deltaY << ")\n";
-
-    // update yaw and pitch (invert Y if needed)
-    mYaw += deltaX * mSensitivity;
-    mPitch -= deltaY * mSensitivity;
-
-    // clamp pitch to avoid flipping
-    if (mPitch > 89.0f) mPitch = 89.0f;
-    if (mPitch < -89.0f) mPitch = -89.0f;
-
-    // calculate new front vector from yaw and pitch
-    glm::vec3 front;
-    front.x = cos(glm::radians(mYaw)) * cos(glm::radians(mPitch));
-    front.y = sin(glm::radians(mPitch));
-    front.z = sin(glm::radians(mYaw)) * cos(glm::radians(mPitch));
-    mViewDirection = glm::normalize(front);
+void Camera::orbit(float xrel, float yrel) {
+    rotateAround(mPosition, mPivot, xrel, - yrel);
 }
 
 void Camera::zoom(float amount) {

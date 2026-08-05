@@ -25,6 +25,12 @@ void CameraController::updateRotation(Camera& camera, const input::Input& input)
 }
 
 
+void CameraController::updateOrbit(Camera& camera, const input::Input& input) const {
+     if (input.keyAlt) {
+        camera.orbit(input.mouseDelta.x, input.mouseDelta.y);
+    }
+}
+
 void CameraController::updatePan(Camera& camera, const input::Input& input) const {
     if (input.middleMouse){
         camera.pan(input.mouseDelta.x, input.mouseDelta.y);
@@ -55,6 +61,8 @@ void CameraController::update(
     updateZoom(camera, input);
 
     updatePan(camera, input);
+
+    updateOrbit(camera, input);
 }
 
 }// namespace camera

@@ -180,6 +180,7 @@ void App::processEvents() {
     mInput.keyW = keyboardState[SDL_SCANCODE_W];
     mInput.keyS = keyboardState[SDL_SCANCODE_S];
     mInput.keyD = keyboardState[SDL_SCANCODE_D];
+    mInput.keyAlt = keyboardState[SDL_SCANCODE_LALT];
 
     // Mouse
     mInput.leftMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT));
