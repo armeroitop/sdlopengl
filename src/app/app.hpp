@@ -27,6 +27,8 @@ struct App {
     Camera mCamera;
     camera::CameraController mCameraController;
     input::Input mInput;
+    u_int32_t mCurrentSelectedObjectId = 0;
+    u_int32_t mLastSelectedObjectId = 0;
 
     Scene scene;
     editor::EditorContext mContext;

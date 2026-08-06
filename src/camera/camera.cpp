@@ -80,6 +80,10 @@ glm::mat4 Camera::getPerspectiveMatrix(float aspect) const {
     );
 }
 
+void Camera::setPivot(const glm::vec3& position) {
+    mPivot = position;
+}
+
 void Camera::moveForward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
@@ -121,12 +125,11 @@ void Camera::mouseLook(float xrel, float yrel) {
 }
 
 void Camera::orbit(float xrel, float yrel) {
-    rotateAround(mPosition, mPivot, xrel, - yrel);
+    rotateAround(mPosition, mPivot, xrel, -yrel);
 }
 
 void Camera::zoom(float amount) {
-    // TODO: cambiar a 
-    // direction = normalize(mPivot - mPosition)
+
     translate(amount * getForward());
 }
 

@@ -11,6 +11,7 @@ Hierarchy::~Hierarchy() {
 }
 
 void Hierarchy::draw() {
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
     ImGui::Begin("Hierarchy");
 
     for (const auto& obj : mScene.getObjects()) {
@@ -21,6 +22,7 @@ void Hierarchy::draw() {
         }
 
     }
+    ImGui::PopStyleVar();
     ImGui::End();
 }
 

@@ -12,6 +12,8 @@ Inspector::~Inspector() {
 }
 
 void Inspector::draw() {
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
+
     ImGui::Begin("Inspector");
     uint32_t objectId = mContext.getSelectedObjectId();
     Object* object = mScene.findObject(objectId);
@@ -44,8 +46,9 @@ void Inspector::draw() {
         );
 
     }
-
-
+    
+    ImGui::PopStyleVar();
+    
     ImGui::End();
 
 }

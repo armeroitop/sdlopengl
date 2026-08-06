@@ -1,6 +1,7 @@
 #include "dock_layout.hpp"
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <iostream>
 
 
 namespace ui {
@@ -42,11 +43,12 @@ void DockLayout::beginDockSpace() {
         | ImGuiWindowFlags_NoMove
         | ImGuiWindowFlags_NoBringToFrontOnFocus
         | ImGuiWindowFlags_NoNavFocus
+        | ImGuiWindowFlags_NoSavedSettings
         | ImGuiWindowFlags_NoBackground;
 
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // importante
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
     ImGui::Begin("MainDockSpace", nullptr, windowFlags);
 
@@ -62,11 +64,11 @@ void DockLayout::beginDockSpace() {
 void DockLayout::buildDefaultLayout() {
     //ImGuiID dockspaceID = ImGui::GetID("MainDockSpace");
 
-     ImGui::DockBuilderRemoveNode(mDockspaceID);
-     ImGui::DockBuilderAddNode(
-         mDockspaceID,
-         ImGuiDockNodeFlags_DockSpace
-     );
+    ImGui::DockBuilderRemoveNode(mDockspaceID);
+    ImGui::DockBuilderAddNode(
+        mDockspaceID,
+        ImGuiDockNodeFlags_DockSpace
+    );
     printf("dockspace = %08X\n", mDockspaceID);
     // Imgui debe conocer el tamaño de la ventana
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -128,6 +130,7 @@ void DockLayout::buildDefaultLayout() {
 }
 
 void DockLayout::end() {
+    ImGui::PopStyleVar(3);
     ImGui::End();
 }
 

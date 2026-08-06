@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include "math/transform.hpp"
 class Camera {
 private:
     // Transform
@@ -45,6 +45,8 @@ public:
 
     glm::mat4 getViewMatrix() const;
     glm::mat4 getPerspectiveMatrix(float aspect) const;
+
+    void setPivot(const glm::vec3& position);
 
     void moveForward(float deltaTime);
     void moveBackward(float deltaTime);
