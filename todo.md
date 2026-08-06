@@ -18,7 +18,7 @@ Editor
     [ ] Scale
 
 [ ] Renderer
-    [ ] Grid
+    [x] Grid
     [ ] Skybox
     [ ] Wireframe mode
 

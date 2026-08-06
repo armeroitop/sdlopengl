@@ -6,6 +6,7 @@
 #include "ui/viewport.hpp"
 #include "shader.hpp"
 #include "editor/editor_context.hpp"
+#include "grid.hpp"
 
 namespace render {
 
@@ -17,6 +18,7 @@ private:
     glm::mat4 mView;
 
     Shader mShader;
+    Grid mGrid;
 
 public:
     Renderer(/* args */);

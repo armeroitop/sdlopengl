@@ -23,6 +23,10 @@ void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport
     mShader.setMat4("view", mView);
     mShader.setMat4("perspective", mProjection);
 
+    // Dibujamos el Grid
+    mShader.setMat4("model", glm::mat4(1.0f));
+    mGrid.draw();
+
     // Dibujar objetos
     for (auto& object : scene.getObjects()) {
         const bool isSelected =
@@ -45,6 +49,8 @@ void Renderer::init() {
         std::cerr << "No se ha podido iniciar el Shader. \n";
         exit(EXIT_FAILURE);
     }
+
+    mGrid.init();
 }
 
 void Renderer::beginFrame(SDL_Window* window) {
