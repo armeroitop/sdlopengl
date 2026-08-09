@@ -2,7 +2,7 @@
 
 namespace app::geometry {
 
-Mesh::Mesh(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
     :vertices(vertices)
     , indices(indices) {
 }

@@ -13,6 +13,7 @@ Editor
     [ ] Renombrar objeto
 
 [ ] Gizmos
+    [ ] integrar ImGuizmo
     [ ] Translate
     [ ] Rotate
     [ ] Scale

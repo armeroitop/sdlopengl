@@ -1,15 +1,17 @@
 #pragma once
 #include <glad/glad.h>
 #include "camera/camera.hpp"
+#include "geometry/vertex.hpp"
 
-
+using  app::geometry::Vertex;
 namespace render
 {
     class Grid
     {
     private:
         GLuint mVAO, mVBO;
-        std::vector<glm::vec3> mVertices;
+        Vertex vertice;
+        std::vector<Vertex> mVertices;
         GLsizei mVertexCount;
     public:
 

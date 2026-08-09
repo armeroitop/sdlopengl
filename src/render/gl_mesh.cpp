@@ -3,6 +3,7 @@
 #include <iostream>
 
 using  app::geometry::Mesh;
+using  app::geometry::Vertex;
 
 GLMesh::GLMesh(const Mesh& mesh) {
     if (mesh.vertices.empty()) {
@@ -24,7 +25,7 @@ GLMesh::GLMesh(const Mesh& mesh) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(
         GL_ARRAY_BUFFER,
-        mesh.vertices.size() * sizeof(GLfloat),
+        mesh.vertices.size() * sizeof(Vertex),
         mesh.vertices.data(),
         GL_STATIC_DRAW
     );
@@ -34,15 +35,17 @@ GLMesh::GLMesh(const Mesh& mesh) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
-        mesh.indices.size() * sizeof(GLuint),
+        mesh.indices.size() * sizeof(mesh.indices[0]),
         mesh.indices.data(),
         GL_STATIC_DRAW
     );
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
+    // Atributo Position - aPos del Shader
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),  (void*)offsetof(Vertex, position));
     glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    // Atributo Color - aColor del Shader
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),  (void*)offsetof(Vertex, color));
     glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
 
     // Desvincular VAO y VBO

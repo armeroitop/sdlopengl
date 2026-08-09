@@ -7,28 +7,29 @@ Grid::Grid() {
 
 bool Grid::init() {
     constexpr int size = 20;
+    glm::vec3 colorX;
+    glm::vec3 colorZ;
 
     for (int i = 0; i < size; i++) {
+        if (i == 0) {
+            colorX = { 1.0f,0.0f,0.0f };
+            colorZ = { 0.0f,0.0f,1.0f };
+        } else {
+            colorX = { 0.0f,0.0f,0.0f };
+            colorZ = { 0.0f,0.0f,0.0f };
+        }
+        
+        //Paralelas a Eje Z
+        mVertices.emplace_back(glm::vec3{ i,0,size }, colorZ);
+        mVertices.emplace_back(glm::vec3{ i,0,-size }, colorZ);
+        mVertices.emplace_back(glm::vec3{ -i,0,size }, colorZ);
+        mVertices.emplace_back(glm::vec3{ -i,0,-size }, colorZ);
 
-        glm::vec3 verticeXC1{ i,0,size };
-        glm::vec3 verticeXC3{ i,0,-size };
-        glm::vec3 verticeXC2{ -i,0,size };
-        glm::vec3 verticeXC4{ -i,0,-size };
-
-        mVertices.push_back(verticeXC1);
-        mVertices.push_back(verticeXC3);
-        mVertices.push_back(verticeXC2);
-        mVertices.push_back(verticeXC4);
-
-        glm::vec3 verticeYC1{ size,0,i };
-        glm::vec3 verticeYC3{ -size,0,i };
-        glm::vec3 verticeYC2{ size,0,-i };
-        glm::vec3 verticeYC4{ -size,0,-i };
-
-        mVertices.push_back(verticeYC1);
-        mVertices.push_back(verticeYC3);
-        mVertices.push_back(verticeYC2);
-        mVertices.push_back(verticeYC4);
+        //Paralelas a Eje X
+        mVertices.emplace_back(glm::vec3{ size,0,i },colorX);
+        mVertices.emplace_back(glm::vec3{ -size,0,i },colorX);
+        mVertices.emplace_back(glm::vec3{ size,0,-i },colorX);
+        mVertices.emplace_back(glm::vec3{ -size,0,-i },colorX);
     }
     mVertexCount = mVertices.size();
 
@@ -40,13 +41,17 @@ bool Grid::init() {
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glBufferData(
         GL_ARRAY_BUFFER,
-        mVertexCount * sizeof(glm::vec3),
+        mVertexCount * sizeof(Vertex),
         mVertices.data(),
         GL_STATIC_DRAW
     );
 
     glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+
+    // Atributo Color - aColor del Shader
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+    glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
 
     // Desvincular VAO y VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
