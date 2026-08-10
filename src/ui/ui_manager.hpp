@@ -12,6 +12,7 @@ class UIManager {
 private:
     editor::EditorContext& mContext;
     Scene& mScene;
+
     DockLayout mDockLayout;
     Toolbar mToolbar;
     Hierarchy mHierarchy;
@@ -19,7 +20,7 @@ private:
     Viewport mViewport;
 
 public:
-    UIManager(editor::EditorContext& context, Scene& scene);
+    UIManager(editor::EditorContext& context, Scene& scene, Camera& camera);
     ~UIManager();
     void draw();
     void begin();

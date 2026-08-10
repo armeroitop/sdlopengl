@@ -24,20 +24,24 @@ void Inspector::draw() {
         ImGui::Text("%s", object->getName().c_str());
 
         ImGui::Separator();
-        
+
         Transform& transform = object->getTransform();
-        
+
         ImGui::DragFloat3(
             "Position",
             glm::value_ptr(transform.position),
             0.1f
         );
-        
-        ImGui::DragFloat3(
+
+        glm::vec3 rotationEuler = transform.getRotationEuler();
+        if (ImGui::DragFloat3(
             "Rotation",
-            glm::value_ptr(transform.rotation),
+            glm::value_ptr(rotationEuler),
             1.0f
-        );
+        )) {
+            transform.setRotationEuler(rotationEuler);
+        }
+
 
         ImGui::DragFloat3(
             "Scale",
@@ -46,10 +50,10 @@ void Inspector::draw() {
         );
 
     }
+
+    ImGui::End();
     
     ImGui::PopStyleVar();
-    
-    ImGui::End();
 
 }
 } // namespace ui

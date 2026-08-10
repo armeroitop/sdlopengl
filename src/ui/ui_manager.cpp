@@ -8,14 +8,14 @@
 #endif
 
 namespace ui {
-UIManager::UIManager(editor::EditorContext& context, Scene& scene)
+UIManager::UIManager(editor::EditorContext& context, Scene& scene, Camera& camera)
     :mContext(context),
     mScene(scene),
     mDockLayout(),
     mToolbar(mContext, scene),
     mHierarchy(mContext, scene),
     mInspector(mContext, scene),
-    mViewport (mContext, scene) {
+    mViewport (mContext, scene, camera) {
 
 }
 

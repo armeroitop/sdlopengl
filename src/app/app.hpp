@@ -30,7 +30,7 @@ struct App {
     u_int32_t mCurrentSelectedObjectId = 0;
     u_int32_t mLastSelectedObjectId = 0;
 
-    Scene scene;
+    Scene mScene;
     editor::EditorContext mContext;
 
     ui::UIManager mUI;

@@ -12,9 +12,12 @@
 #include <backends/imgui_impl_sdl2.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/epsilon.hpp>
+
 
 App::App()
-    : mUI(mContext, scene) {
+    : mUI(mContext, mScene, mCamera) {
 }
 
 void App::init() {
@@ -91,7 +94,7 @@ void App::init() {
 }
 
 void App::update(float dt) {
-    scene.update(dt);
+    mScene.update(dt);
 
     // Actualizamo el mPivot de la camara a la posición del objeto seleccionado
     mCurrentSelectedObjectId = mContext.getSelectedObjectId();
@@ -101,16 +104,16 @@ void App::update(float dt) {
         // el desarrollo de orbit(). En la versión definitiva, seleccionar un
         // objeto NO modificará el pivot automáticamente.
 
-        if (Object* object = scene.findObject(mCurrentSelectedObjectId)) {
+        if (Object* object = mScene.findObject(mCurrentSelectedObjectId)) {
             mCamera.setPivot(object->getTransform().position);
-        
+
             mLastSelectedObjectId = mCurrentSelectedObjectId;
         }
     }
 }
 
 void App::render() {
-    mRenderer.render(scene, mCamera, mUI.getViewport(), mContext);
+    mRenderer.render(mScene, mCamera, mUI.getViewport(), mContext);
 }
 
 void App::run() {
@@ -125,6 +128,7 @@ void App::run() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
         //ImGui::ShowDemoWindow(); // Show demo window! :)
 
         Uint32 currentTime = SDL_GetTicks();
@@ -137,7 +141,7 @@ void App::run() {
         mCameraController.update(mCamera, mInput, deltaTime);
 
         //for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
-        //scene.update(deltaTime);
+        //mScene.update(deltaTime);
         update(deltaTime);
 
         mRenderer.beginFrame(mWindow);

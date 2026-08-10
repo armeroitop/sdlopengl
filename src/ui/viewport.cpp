@@ -1,10 +1,11 @@
 #include "viewport.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
 
 
 namespace ui {
-Viewport::Viewport(editor::EditorContext& context, Scene& scene)
-    :mContext(context), mScene(scene) {
+Viewport::Viewport(editor::EditorContext& context, Scene& scene, Camera& camera)
+    :mContext(context), mScene(scene), mCamera(camera) {
 }
 
 Viewport::~Viewport() {
@@ -61,6 +62,8 @@ void Viewport::begin() {
             (int)mSize.y
         );
     }
+
+    mImagePos = ImGui::GetCursorScreenPos();
 }
 
 void Viewport::beginRender() {
@@ -102,7 +105,45 @@ void Viewport::end() {
         );
     }
 
-    //ImGui::Text("Size: %.0f x %.0f", mSize.x, mSize.y);
+    // Configuración de ImGuizmo
+    ImGuizmo::SetDrawlist();
+
+    ImGuizmo::SetRect(
+        mImagePos.x,
+        mImagePos.y,
+        mSize.x,
+        mSize.y
+    );
+
+    // Obtener el objeto seleccionado
+    uint32_t objectId = mContext.getSelectedObjectId();
+    Object* objectSelected = mScene.findObject(objectId);
+
+    if (objectSelected != nullptr) {
+        Transform& transform = objectSelected->getTransform();
+
+        // Obtención de matrices necesarias para Manipulate()
+        glm::mat4 modelMatrix = transform.getModelMatrix();
+
+        glm::mat4 viewMatrix = mCamera.getViewMatrix();
+
+        glm::mat4 perspectiveMatrix = mCamera.getPerspectiveMatrix(getAspectRatio());
+
+        ImGuizmo::Manipulate(
+            glm::value_ptr(viewMatrix),
+            glm::value_ptr(perspectiveMatrix),
+            ImGuizmo::SCALE,
+            ImGuizmo::LOCAL,
+            glm::value_ptr(modelMatrix)
+        );
+
+        // Recomponer de model a position,rotation y scale
+        if (ImGuizmo::IsUsing()) {
+            transform.setFromModelMatrix(modelMatrix);
+        }
+    }
+
+
 
     ImGui::End();
 }

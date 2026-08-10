@@ -47,7 +47,7 @@ void Camera::rotateAround(
 
 
 Camera::Camera(/* args */) {
-    mPosition = glm::vec3(0.0f, 3.0f, 3.0f);
+    mPosition = glm::vec3(0.1f, 3.0f, 3.0f);
     //mViewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
     mPivot = glm::vec3(0.0f, 0.0f, -2.0f);
     mUpVector = glm::vec3(0.0f, 1.0f, 0.0f);

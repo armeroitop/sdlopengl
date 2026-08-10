@@ -17,7 +17,7 @@ Object::~Object() {
 }
 
 void Object::update(float dt) {
-    mTransform.rotation.y += dt * 10.0f;
+    //mTransform.rotation.y += dt * 10.0f;
 }
 
 void Object::draw() const {

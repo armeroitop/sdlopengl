@@ -93,8 +93,19 @@ SRC			:= src
 OBJ			:= obj
 LIBS_DIR	:= libs
 TERCEROS	:= ./terceros
-LIBS 		:= $(LIBS_DIR)/glad/libglad.a $(LIBS_DIR)/imgui/imgui.a -lpthread -lm -lcrypt -lrt `sdl2-config --libs` -lGL
-INC_DIRS 	:= -I$(SRC) -I$(LIBS_DIR) -I$(LIBS_DIR)/glad/include -I/usr/local/include  -I$(LIBS_DIR)/glm -I$(LIBS_DIR)/include -I$(LIBS_DIR)/imgui/backends -I$(LIBS_DIR)/imgui
+LIBS 		:= $(LIBS_DIR)/glad/libglad.a \
+				$(LIBS_DIR)/imgui/imgui.a \
+				$(LIBS_DIR)/imguizmo/imguizmo.a \
+				-lpthread -lm -lcrypt -lrt `sdl2-config --libs` -lGL
+INC_DIRS 	:= -I$(SRC) \
+				-I$(LIBS_DIR) \
+				-I$(LIBS_DIR)/glad/include \
+				-I/usr/local/include \
+				-I$(LIBS_DIR)/glm \
+				-I$(LIBS_DIR)/include \
+				-I$(LIBS_DIR)/imgui/backends \
+				-I$(LIBS_DIR)/imgui \
+				-I$(LIBS_DIR)/imguizmo
 RM 			:= rm
 DEBUG		:= 1
 
