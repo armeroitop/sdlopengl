@@ -16,6 +16,14 @@ void EditorContext::setTool(Tool tool) {
     mTool = tool;
 }
 
+TransformMode EditorContext::getTransformMode() const {
+    return mTransformode;
+}
+
+void EditorContext::setTransformMode(TransformMode mode) {
+    mTransformode = mode;
+}
+
 void EditorContext::setSelectedObjectId(uint32_t id) {
     mSelectedObjectId = id;
 }

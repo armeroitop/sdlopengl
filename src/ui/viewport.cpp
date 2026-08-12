@@ -1,6 +1,7 @@
 #include "viewport.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <optional>
 
 
 namespace ui {
@@ -129,22 +130,51 @@ void Viewport::end() {
 
         glm::mat4 perspectiveMatrix = mCamera.getPerspectiveMatrix(getAspectRatio());
 
-        ImGuizmo::Manipulate(
-            glm::value_ptr(viewMatrix),
-            glm::value_ptr(perspectiveMatrix),
-            ImGuizmo::SCALE,
-            ImGuizmo::LOCAL,
-            glm::value_ptr(modelMatrix)
-        );
+        //enum ImGuizmo::OPERATION operation;
+        std::optional<ImGuizmo::OPERATION> operation;
+
+        editor::Tool toolSelected = mContext.getTool();
+        switch (toolSelected) {
+        case editor::Tool::Move:
+            operation = ImGuizmo::TRANSLATE;
+            break;
+        case editor::Tool::Rotate:
+            operation = ImGuizmo::ROTATE;
+            break;
+        case editor::Tool::Scale:
+            operation = ImGuizmo::SCALE;
+            break;
+        default:
+            break;
+        }
+
+        editor::TransformMode modeSelected = mContext.getTransformMode();
+        enum ImGuizmo::MODE mode;
+        switch (modeSelected) {
+        case editor::TransformMode::World:
+            mode = ImGuizmo::WORLD;
+            break;
+
+        default:
+            mode = ImGuizmo::LOCAL;
+            break;
+        }
+
+        if (operation) {
+            ImGuizmo::Manipulate(
+                glm::value_ptr(viewMatrix),
+                glm::value_ptr(perspectiveMatrix),
+                *operation,
+                mode,
+                glm::value_ptr(modelMatrix)
+            );
+        }
 
         // Recomponer de model a position,rotation y scale
         if (ImGuizmo::IsUsing()) {
             transform.setFromModelMatrix(modelMatrix);
         }
     }
-
-
-
     ImGui::End();
 }
 

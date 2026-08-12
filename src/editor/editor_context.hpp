@@ -7,6 +7,7 @@ namespace editor {
 class EditorContext {
 private:
     Tool mTool = Tool::Select;
+    TransformMode mTransformode = TransformMode::Local;
 
     uint32_t mSelectedObjectId = mNoObjectIdSelected;
 public:
@@ -17,6 +18,9 @@ public:
 
     Tool getTool() const;
     void setTool(Tool tool);
+
+    TransformMode getTransformMode() const;
+    void setTransformMode(TransformMode mode);
 
     void setSelectedObjectId(uint32_t id);
     uint32_t getSelectedObjectId() const;
