@@ -13,7 +13,6 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/epsilon.hpp>
 
 
 App::App()

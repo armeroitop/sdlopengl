@@ -18,7 +18,7 @@ glm::mat4 Transform::getModelMatrix() const {
 }
 
 void Transform::setFromModelMatrix(const glm::mat4& model) {
-     // Traslación
+    // Traslación
     position = glm::vec3(model[3]);
 
     // Escala
@@ -40,63 +40,28 @@ void Transform::setFromModelMatrix(const glm::mat4& model) {
 glm::vec3 Transform::getRotationEuler() const {
     //return glm::degrees(glm::eulerAngles(rotation));
 
-    
+
     glm::mat3 matrix = glm::mat3_cast(rotation);
 
-    float sy = glm::clamp(
-        matrix[2][0],
-        -1.0f,
-        1.0f
+    
+
+    float x = std::atan2(
+        matrix[1][2],
+        matrix[2][2]
     );
 
-    float x;
-    float y;
-    float z;
+    float y = std::atan2(
+        -matrix[0][2],
+        std::sqrt(
+            matrix[1][2] * matrix[1][2] +
+            matrix[2][2] * matrix[2][2]
+        )
+    );
 
-    constexpr float epsilon = 0.00001f;
-
-    if (1.0f - std::abs(sy) < epsilon) {
-
-        // Gimbal lock
-        z = 0.0f;
-
-        if (sy > 0.0f) {
-
-            // Y = +90°
-            y = glm::half_pi<float>();
-
-            x = std::atan2(
-                matrix[0][1],
-                matrix[1][1]
-            );
-
-        } else {
-
-            // Y = -90°
-            y = -glm::half_pi<float>();
-
-            x = -std::atan2(
-                matrix[0][1],
-                matrix[1][1]
-            );
-        }
-
-    } else {
-
-        // Caso normal
-        y = std::asin(sy);
-
-        x = std::atan2(
-            -matrix[2][1],
-            matrix[2][2]
-        );
-
-        z = std::atan2(
-            -matrix[1][0],
-            matrix[0][0]
-        );
-    }
-
+    float z = std::atan2(
+        matrix[0][1],
+        matrix[0][0]
+    );
     return glm::degrees(glm::vec3(x, y, z));
 }
 
@@ -117,7 +82,8 @@ void Transform::setRotationEuler(const glm::vec3& euler) {
         glm::vec3{ 0.0f, 0.0f, 1.0f }
     );
 
-    rotation = quatX * quatY * quatZ; 
+    //rotation = quatX * quatY * quatZ;
+    rotation =  quatZ * quatY * quatX ;
 
     //rotation = glm::quat(glm::radians(euler));
 }
