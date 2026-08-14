@@ -5,6 +5,8 @@
 #include "geometry/mesh.hpp"
 #include "render/gl_mesh.hpp"
 #include "math/transform.hpp"
+#include "math/aabb.hpp"
+
 
 
 class Object {
@@ -15,6 +17,7 @@ private:
     uint32_t mId;
     std::string mName;
     Transform mTransform;
+    math::AABB mBoundingBox;
 
 public:
 
@@ -33,6 +36,8 @@ public:
 
     Transform& getTransform();
     const Transform& getTransform() const;
+
+    const math::AABB& getBoundingBox() const;
 };
 
 

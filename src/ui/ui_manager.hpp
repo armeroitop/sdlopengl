@@ -29,6 +29,8 @@ public:
     void beginViewportRender();
     void endViewportRender();
 
+    void update(const input::Input& input);
+
     Viewport& getViewport();
     const Viewport& getViewport() const;
 

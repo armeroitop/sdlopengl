@@ -8,15 +8,16 @@ Editor
     [ ] Guardar vistas
 
 [ ] Scene
+    [x] Seleccionar objeto
     [ ] Duplicar objeto
     [ ] Eliminar objeto
     [ ] Renombrar objeto
 
-[ ] Gizmos
-    [ ] integrar ImGuizmo
-    [ ] Translate
-    [ ] Rotate
-    [ ] Scale
+[x] Gizmos
+    [x] integrar ImGuizmo
+    [x] Translate
+    [x] Rotate
+    [x] Scale
 
 [ ] Renderer
     [x] Grid

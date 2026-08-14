@@ -1,4 +1,6 @@
 #include "viewport.hpp"
+#include "math/intersection.hpp"
+
 
 #include <glm/gtc/type_ptr.hpp>
 #include <optional>
@@ -6,6 +8,20 @@
 
 
 namespace ui {
+
+glm::vec2 Viewport::screenToNDC(const glm::vec2& mouseAbsolutePosition) const {
+
+    glm::vec2 mousePositionViewport{
+        mouseAbsolutePosition.x - mImagePos.x,
+        mouseAbsolutePosition.y - mImagePos.y
+    };
+
+    return glm::vec2{
+        mousePositionViewport.x / mSize.x * 2 - 1,
+        -mousePositionViewport.y / mSize.y * 2 + 1
+    };
+}
+
 Viewport::Viewport(editor::EditorContext& context, Scene& scene, Camera& camera)
     :mContext(context), mScene(scene), mCamera(camera) {
 }
@@ -46,8 +62,86 @@ void Viewport::draw() {
     ImGui::End();
 }
 
-void Viewport::update() {
+void Viewport::update(const input::Input& input) {
+    if (!input.leftMouseDown ||
+        !isMouseOver(input.mouseAbsolutePosition)) {
+        return;
+    }
+    // hemos hecho click dentro del viewport
+
+    math::Ray worldRay =
+        screenToRay(input.mouseAbsolutePosition);
+
+    std::cout
+        << "worldRay origin: "
+        << worldRay.origin.x << ", "
+        << worldRay.origin.y << ", "
+        << worldRay.origin.z
+        << '\n';
+
+    std::cout
+        << "worldRay direction: "
+        << worldRay.direction.x << ", "
+        << worldRay.direction.y << ", "
+        << worldRay.direction.z
+        << '\n';
+
+    float closestDistance =
+        std::numeric_limits<float>::infinity();
+
+    const Object* selectedObject = nullptr;
+    for (const Object& object : mScene.getObjects()) {
+
+        glm::mat4 modelMatrix =
+            object.getTransform().getModelMatrix();
+
+        math::Ray localRay =
+            worldToLocalRay(worldRay, modelMatrix);
+
+        float localDistance;
+
+        if (math::intersect(
+            localRay,
+            object.getBoundingBox(),
+            localDistance)) {
+
+
+            glm::vec3 localHitPoint =
+                localRay.origin +
+                localDistance * localRay.direction;
+
+            glm::vec3 worldHitPoint =
+                glm::vec3(modelMatrix * glm::vec4(localHitPoint, 1.0f));
+
+            float worldDistance =
+                glm::length(worldHitPoint - worldRay.origin);
+
+            std::cout
+                << "Hit object: "
+                << object.getName()
+                << " | world_distance = "
+                << worldDistance
+                << " | local_distance = "
+                << localDistance
+                << '\n';
+
+            if (worldDistance < closestDistance) {
+                closestDistance = worldDistance;
+                mContext.setSelectedObjectId(object.getId());
+            }
+        }
+
+    }
+
+    if (selectedObject != nullptr) {
+
+        mContext.setSelectedObjectId(
+            selectedObject->getId()
+        );
+    }
+
 }
+
 
 void Viewport::begin() {
     ImGui::Begin("Viewport");
@@ -193,6 +287,68 @@ int Viewport::getWidth() const {
 
 int Viewport::getHeight() const {
     return static_cast<int>(mSize.y);
+}
+
+bool Viewport::isMouseOver(const glm::ivec2& mouseAbsolutePosition) const {
+
+    float left = mImagePos.x;
+    float right = mImagePos.x + mSize.x;
+    float top = mImagePos.y;
+    float bottom = mImagePos.y + mSize.y;
+
+    return (
+        mouseAbsolutePosition.x >= left
+        && mouseAbsolutePosition.x <= right
+        && mouseAbsolutePosition.y <= bottom
+        && mouseAbsolutePosition.y >= top
+        );
+}
+
+math::Ray Viewport::screenToRay(const glm::vec2& mouseAbsolutePosition) const {
+
+    glm::vec2 ndc = screenToNDC(mouseAbsolutePosition);
+
+    //Crear dos vec4 near y far;
+    glm::vec4 nearPointNDC{ ndc.x, ndc.y, -1.0f, 1.0f };
+    glm::vec4 farPointNDC{ ndc.x, ndc.y, 1.0f, 1.0f };
+
+    //Matriz de inversión, de NDC a World
+    glm::mat4 inverseViewProjection = glm::inverse(
+        mCamera.getPerspectiveMatrix(getAspectRatio()) * mCamera.getViewMatrix());
+
+    // Transformar near y far a world
+    glm::vec4 nearPointWorld = inverseViewProjection * nearPointNDC;
+    glm::vec4 farPointWorld = inverseViewProjection * farPointNDC;
+
+    // Realizar la división perspectiva
+    glm::vec3 nearPoint = glm::vec3(nearPointWorld / nearPointWorld.w);
+    glm::vec3 farPoint = glm::vec3(farPointWorld / farPointWorld.w);
+
+    // Construir el rayo
+
+    math::Ray ray;
+
+    ray.origin = nearPoint;
+    ray.direction = glm::normalize(farPoint - nearPoint);
+
+    return ray;
+
+}
+
+math::Ray Viewport::worldToLocalRay(const math::Ray& worldRay, const glm::mat4& modelMatrix) const {
+
+    glm::mat4 inverseModel = glm::inverse(modelMatrix);
+
+    glm::vec4 origin = inverseModel * glm::vec4(worldRay.origin, 1.0f);
+
+    glm::vec4 direction = inverseModel * glm::vec4(worldRay.direction, 0.0f);
+
+    math::Ray localRay;
+
+    localRay.origin = glm::vec3(origin);
+    localRay.direction = glm::normalize(glm::vec3(direction));
+
+    return localRay;
 }
 
 } // namespace ui

@@ -7,6 +7,9 @@
 #include "scene/scene.hpp"
 #include "render/framebuffer.hpp"
 #include "camera/camera.hpp"
+#include "input/input.hpp"
+#include "math/ray.hpp"
+
 
 
 namespace ui {
@@ -16,18 +19,20 @@ private:
     editor::EditorContext& mContext;
     Scene& mScene;
     Camera& mCamera;
-    
+
     render::Framebuffer mFramebuffer;
 
     ImVec2 mSize;
     ImVec2 mImagePos;
+
+    glm::vec2 screenToNDC(const glm::vec2& mouseAbsolutePosition) const;
 
 public:
     Viewport(editor::EditorContext& context, Scene& scene, Camera& camera);
     ~Viewport();
 
     void draw();
-    void update();
+    void update(const input::Input& input);
 
     void begin();
     void beginRender();
@@ -35,10 +40,15 @@ public:
 
     void end();
 
-
     float getAspectRatio() const;
     int getWidth() const;
     int getHeight() const;
+
+    bool isMouseOver(const glm::ivec2& mouseAbsolutePosition) const;
+
+    math::Ray screenToRay(const glm::vec2& mouseAbsolutePosition) const;
+    math::Ray worldToLocalRay(const math::Ray& worldRay, const glm::mat4& modelMatrix) const;
+
 };
 
 } // namespace ui

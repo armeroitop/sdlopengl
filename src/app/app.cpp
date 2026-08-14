@@ -109,6 +109,8 @@ void App::update(float dt) {
             mLastSelectedObjectId = mCurrentSelectedObjectId;
         }
     }
+
+    mUI.update(mInput);
 }
 
 void App::render() {
@@ -199,7 +201,11 @@ void App::processEvents() {
             mInput.wheelDelta = event.wheel.preciseY;
         }
 
-
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                mInput.leftMouseDown = true;
+            }
+        }
     }
 
     // Teclado
@@ -214,6 +220,8 @@ void App::processEvents() {
     mInput.leftMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT));
     mInput.middleMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_MIDDLE));
     mInput.rightMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT));
+
+    SDL_GetMouseState(&mInput.mouseAbsolutePosition.x, &mInput.mouseAbsolutePosition.y);
 
 
 }

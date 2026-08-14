@@ -9,6 +9,8 @@ void Input::reset() {
     mouseDelta.x = 0.0f;
     mouseDelta.y = 0.0f;
     wheelDelta = 0.0f;
+
+    leftMouseDown = false;
 }
 } // namespace input
 

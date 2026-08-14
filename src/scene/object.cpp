@@ -10,7 +10,12 @@ Object::Object(uint32_t id,
     mName(name),
     mMesh(mesh),
     mGLmesh(this->mMesh),
-    mTransform(transform) {
+    mTransform(transform),
+    mBoundingBox{
+            glm::vec3(-1.0f,-1.0f,-1.0f),
+            glm::vec3(1.0f,1.0f,1.0f)
+    } {
+
 }
 
 Object::~Object() {
@@ -42,4 +47,8 @@ Transform& Object::getTransform() {
 
 const Transform& Object::getTransform() const {
     return mTransform;
+}
+
+const math::AABB& Object::getBoundingBox() const {
+    return mBoundingBox;
 }

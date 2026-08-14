@@ -59,6 +59,10 @@ void UIManager::endViewportRender() {
     mViewport.endRender();
 }
 
+void UIManager::update(const input::Input& input) {
+    mViewport.update(input);
+}
+
 Viewport& UIManager::getViewport() {
     return mViewport;
 }
