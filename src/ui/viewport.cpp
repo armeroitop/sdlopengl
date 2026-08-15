@@ -64,7 +64,8 @@ void Viewport::draw() {
 
 void Viewport::update(const input::Input& input) {
     if (!input.leftMouseDown ||
-        !isMouseOver(input.mouseAbsolutePosition)) {
+        !isMouseOver(input.mouseAbsolutePosition) ||
+        (mContext.getTool() != editor::Tool::Select)) {
         return;
     }
     // hemos hecho click dentro del viewport
@@ -89,7 +90,8 @@ void Viewport::update(const input::Input& input) {
     float closestDistance =
         std::numeric_limits<float>::infinity();
 
-    const Object* selectedObject = nullptr;
+    uint32_t selectedObjectId = 0;
+
     for (const Object& object : mScene.getObjects()) {
 
         glm::mat4 modelMatrix =
@@ -116,30 +118,18 @@ void Viewport::update(const input::Input& input) {
             float worldDistance =
                 glm::length(worldHitPoint - worldRay.origin);
 
-            std::cout
-                << "Hit object: "
-                << object.getName()
-                << " | world_distance = "
-                << worldDistance
-                << " | local_distance = "
-                << localDistance
-                << '\n';
 
             if (worldDistance < closestDistance) {
                 closestDistance = worldDistance;
-                mContext.setSelectedObjectId(object.getId());
+                //mContext.setSelectedObjectId(object.());
+
+
+                selectedObjectId = object.getId();
             }
         }
 
     }
-
-    if (selectedObject != nullptr) {
-
-        mContext.setSelectedObjectId(
-            selectedObject->getId()
-        );
-    }
-
+    mContext.setSelectedObjectId(selectedObjectId);
 }
 
 

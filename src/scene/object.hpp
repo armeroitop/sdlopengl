@@ -38,6 +38,10 @@ public:
     const Transform& getTransform() const;
 
     const math::AABB& getBoundingBox() const;
+
+    /* const math::AABB calculateBoundingBox(const app::geometry::Mesh& mesh) const; */
+
+
 };
 
 
