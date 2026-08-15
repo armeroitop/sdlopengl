@@ -3,6 +3,7 @@
 **/*.dll
 **/*.so
 ventana
+test_runner
 
 # Ignorar archivos estáticos de bibliotecas (.a)
 **/*.a

@@ -149,8 +149,7 @@ SUB_DIRS	:= $(shell find $(SRC) -type d)
 # Comando utilizado:
 #   - $(patsubst $(SRC)%, $(OBJ)%, $(SUB_DIRS)) : Esta función
 #     realiza la sustitución de patrones, donde:
-#       - $(SRC)% : Coincide con cualquier subdirectorio dentro de 
-#         $(SRC).
+#       - $(SRC)% : Coincide con cualquier subdirectorio dentro de $(SRC).
 #       - $(OBJ)% : Reemplaza la parte de $(SRC) con $(OBJ),
 #         creando así la ruta correspondiente en el directorio
 #         de objetos.
@@ -241,6 +240,8 @@ clean:
 
 cleanall: clean
 	$(RM) "./$(APP)"
+	$(RM) "./test_runner"
+	$(RM) -rf "./$(TEST_OBJ)"
 
 
 # LIBS Rules
@@ -252,3 +253,34 @@ libs-clean:
 
 libs-cleanall:
 	$(MAKE) -C $(LIBS_DIR) cleanall
+
+
+##########################################
+#### TESTS
+##########################################
+
+TESTS       := tests
+TEST_OBJ    := test_obj
+
+TEST_CPP    := $(shell find $(TESTS)/ -type f -iname *.cpp)
+
+TEST_OBJ_FILES := $(patsubst $(TESTS)/%.cpp,$(TEST_OBJ)/%.o,$(TEST_CPP))
+
+# Dependencias de objetos el proyecto
+TEST_LIB_OBJ := \
+	$(OBJ)/math/aabb.o \
+    $(OBJ)/math/intersection.o \
+	$(OBJ)/geometry/mesh.o \
+	$(OBJ)/geometry/vertex.o
+
+# Crear los objetos de Test
+$(TEST_OBJ)/%.o: $(TESTS)/%.cpp
+	$(MKDIR) $(dir $@)
+	$(CC) -c -o $@ $< $(CC_FLAGS) $(INC_DIRS)
+
+
+.PHONY: test
+
+test: $(TEST_OBJ_FILES) $(TEST_LIB_OBJ)
+	$(CC) -o test_runner $(TEST_OBJ_FILES) $(TEST_LIB_OBJ) $(LIBS)
+	./test_runner
