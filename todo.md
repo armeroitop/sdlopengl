@@ -27,3 +27,13 @@ Editor
 [ ] Assets
     [ ] Cargar OBJ
     [ ] Materiales
+
+
+[ ] Tests
+    [x] Rayo que atraviesa la AABB
+    [x] Rayo que no llega a tocarla
+    [x] Rayo paralelo a un eje y fuera de la caja
+    [x] Rayo paralelo a un eje pero dentro de la caja
+    [ ] Rayo que empieza dentro de la AABB
+    [ ] Rayo apuntando en sentido contrario
+    [ ] AABB situada en coordenadas negativas

@@ -279,8 +279,12 @@ $(TEST_OBJ)/%.o: $(TESTS)/%.cpp
 	$(CC) -c -o $@ $< $(CC_FLAGS) $(INC_DIRS)
 
 
-.PHONY: test
+.PHONY: test test-clean
 
 test: $(TEST_OBJ_FILES) $(TEST_LIB_OBJ)
 	$(CC) -o test_runner $(TEST_OBJ_FILES) $(TEST_LIB_OBJ) $(LIBS)
 	./test_runner
+
+test-clean: 
+	$(RM) "./test_runner"
+	$(RM) -rf "./$(TEST_OBJ)"

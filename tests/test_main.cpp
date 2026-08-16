@@ -1,13 +1,15 @@
 #include <iostream>
+#include "test.hpp"
 
-bool testBoundingBox();
-bool testRayHitsAABB();
 
 int main() {
     bool success = true;
 
     success &= testBoundingBox();
-    success &= testRayHitsAABB();
+    success &= testRayHitsAABBFromOutside();
+    success &= testRayMissesAABB();
+    success &= testRayStartsInsideAABB();
+    success &= testRayParallelOutsideAABB();
 
    return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
