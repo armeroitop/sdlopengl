@@ -25,6 +25,7 @@ void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport
 
     // Dibujamos el Grid
     mShader.setMat4("model", glm::mat4(1.0f));
+    mShader.setBool("useOverrideColor", false); // Lo dibujamos con color normal
     mGrid.draw();
 
     // Dibujar objetos
@@ -34,12 +35,26 @@ void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport
 
         mShader.setMat4("model", object.getModelMatrix());
 
-        if (isSelected) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        } else {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+        // Siempre dibujamos el objeto sólido
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        mShader.setBool("useOverrideColor", false);
         object.draw();
+
+        if (isSelected) {
+
+            // Después dibujamos el wireframe encima
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            mShader.setBool("useOverrideColor", true); // usamos el color de seleccionado
+            mShader.setVec3("overrideColor", glm::vec3(1.0f, 0.6f, 0.0f));
+            glLineWidth(2.0f);
+
+            object.draw();
+
+            // Restauramos el estado
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glLineWidth(1.0f);
+            mShader.setBool("useOverrideColor", false);
+        }
     }
 }
 

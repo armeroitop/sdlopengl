@@ -95,18 +95,12 @@ void App::init() {
 void App::update(float dt) {
     mScene.update(dt);
 
-    // Actualizamo el mPivot de la camara a la posición del objeto seleccionado
-    mCurrentSelectedObjectId = mContext.getSelectedObjectId();
-    if (mCurrentSelectedObjectId != mLastSelectedObjectId) {
-        // TODO Desacoplar la selección de la cámara.
-        // Actualmente el pivot se mueve al objeto seleccionado para facilitar
-        // el desarrollo de orbit(). En la versión definitiva, seleccionar un
-        // objeto NO modificará el pivot automáticamente.
+    // Actualizamo el mPivot de la camara a la posición del objeto seleccionado pulsando F
+    if (mInput.keyF) {
+        mCurrentSelectedObjectId = mContext.getSelectedObjectId();
 
         if (Object* object = mScene.findObject(mCurrentSelectedObjectId)) {
             mCamera.setPivot(object->getTransform().position);
-
-            mLastSelectedObjectId = mCurrentSelectedObjectId;
         }
     }
 
@@ -214,6 +208,7 @@ void App::processEvents() {
     mInput.keyW = keyboardState[SDL_SCANCODE_W];
     mInput.keyS = keyboardState[SDL_SCANCODE_S];
     mInput.keyD = keyboardState[SDL_SCANCODE_D];
+    mInput.keyF = keyboardState[SDL_SCANCODE_F];
     mInput.keyAlt = keyboardState[SDL_SCANCODE_LALT];
 
     // Mouse

@@ -18,6 +18,7 @@ public:
     bool keyA = false;
     bool keyS = false;
     bool keyD = false;
+    bool keyF = false;
 
     bool keyShift = false;
     bool keyCtrl = false;

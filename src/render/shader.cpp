@@ -110,6 +110,26 @@ void Shader::setMat4(const std::string& name, const glm::mat4& value) {
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
+void Shader::setBool(const std::string& name, bool value) {
+
+    GLint location = getUniformLocation(name);
+
+    if (location == -1) {
+        return;
+    }
+    glUniform1i(location, value);
+}
+
+void Shader::setVec3(const std::string& name, const glm::vec3& value) {
+    GLint location = getUniformLocation(name);
+
+    if (location == -1) {
+        return;
+    }
+
+    glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
 GLint Shader::getUniformLocation(const std::string& name) {
     auto it = mUniforms.find(name);
     if (it != mUniforms.end()) {
