@@ -47,6 +47,7 @@ public:
     glm::mat4 getPerspectiveMatrix(float aspect) const;
 
     void setPivot(const glm::vec3& position);
+    void focus(const glm::vec3& position, const float radius);
 
     void moveForward(float deltaTime);
     void moveBackward(float deltaTime);

@@ -2,8 +2,8 @@ Editor
 ======
 
 [ ] Camera
-    [ ] Desacoplar selección y pivot
-    [ ] Frame Selected (F)
+    [x] Desacoplar selección y pivot
+    [x] Frame Selected (F) y encuadre
     [ ] Zoom sobre cursor
     [ ] Guardar vistas
 
@@ -28,6 +28,7 @@ Editor
     [ ] Cargar OBJ
     [ ] Materiales
 
+[ ] EditorController (controla eventos y acciones)
 
 [ ] Tests
     [x] Rayo que atraviesa la AABB

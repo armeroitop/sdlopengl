@@ -39,6 +39,9 @@ public:
 
     const math::AABB& getBoundingBox() const;
 
+    glm::vec3 getWorldBoundingCenter() const;
+    float getWorldBoundingRadius() const;
+
     /* const math::AABB calculateBoundingBox(const app::geometry::Mesh& mesh) const; */
 
 

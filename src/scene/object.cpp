@@ -11,9 +11,8 @@ Object::Object(uint32_t id,
     mName(name),
     mMesh(mesh),
     mGLmesh(this->mMesh),
-    mTransform(transform)
-    {
-        mBoundingBox = math::calculateBoundingBox(mMesh);
+    mTransform(transform) {
+    mBoundingBox = math::calculateBoundingBox(mMesh);
 }
 
 Object::~Object() {
@@ -51,22 +50,31 @@ const math::AABB& Object::getBoundingBox() const {
     return mBoundingBox;
 }
 
-/* const math::AABB Object::calculateBoundingBox(const Mesh& mesh) const {
+glm::vec3 Object::getWorldBoundingCenter() const {
 
-    if (mesh.vertices.empty()) {
-        return math::AABB{
-           glm::vec3(0.0f),
-           glm::vec3(0.0f)
-        };
-    }
+    glm::vec3 posLocalCenter = (mBoundingBox.max + mBoundingBox.min) * 0.5f;
 
-    glm::vec3 min = mesh.vertices[0].position;
-    glm::vec3 max = mesh.vertices[0].position;
+    glm::vec3 posWorldCenter = (
+        getModelMatrix() *
+        glm::vec4(posLocalCenter, 1.0f)
+        );
 
-    for (const app::geometry::Vertex& vertex : mesh.vertices) {
-        min = glm::min(min, vertex.position);
-        max = glm::max(max, vertex.position);
-    }
-    return math::AABB{ min, max };
-} */
+    return posWorldCenter;
+}
+
+float Object::getWorldBoundingRadius() const {
+    glm::vec3 semiDiagonal = (mBoundingBox.max - mBoundingBox.min) * 0.5f;
+
+    float radius = glm::length(semiDiagonal);
+
+    float maxScale = glm::max(
+        mTransform.scale.x,
+        glm::max(
+            mTransform.scale.y,
+            mTransform.scale.z
+        )
+    );
+
+    return radius * maxScale;
+}
 

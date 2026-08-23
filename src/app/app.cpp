@@ -96,12 +96,17 @@ void App::update(float dt) {
     mScene.update(dt);
 
     // Actualizamo el mPivot de la camara a la posición del objeto seleccionado pulsando F
-    if (mInput.keyF) {
+    if (mInput.keyFDown) {
         mCurrentSelectedObjectId = mContext.getSelectedObjectId();
 
         if (Object* object = mScene.findObject(mCurrentSelectedObjectId)) {
-            mCamera.setPivot(object->getTransform().position);
+            //mCamera.setPivot(object->getTransform().position);
+            mCamera.focus(
+                object->getTransform().position,
+                object->getWorldBoundingRadius()
+            );
         }
+        std::cout << "Focus: " << std::endl;
     }
 
     mUI.update(mInput);
@@ -175,50 +180,11 @@ void App::shutdown() {
 
 void App::processEvents() {
 
-    mInput.reset();
+    mInput.update();
 
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        // (Where your code calls SDL_PollEvent())
-        ImGui_ImplSDL2_ProcessEvent(&event); // Forward your event to backend
-
-        if (event.type == SDL_QUIT) {
-            mRunning = false;
-        }
-
-        if (event.type == SDL_MOUSEMOTION) {
-            mInput.mouseDelta.x = event.motion.xrel;
-            mInput.mouseDelta.y = event.motion.yrel;
-        }
-
-        if (event.type == SDL_MOUSEWHEEL) {
-            mInput.wheelDelta = event.wheel.preciseY;
-        }
-
-        if (event.type == SDL_MOUSEBUTTONDOWN) {
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                mInput.leftMouseDown = true;
-            }
-        }
+    if (mInput.quitRequested) {
+        mRunning = false;
     }
-
-    // Teclado
-    const uint8_t* keyboardState = SDL_GetKeyboardState(NULL);
-    mInput.keyA = keyboardState[SDL_SCANCODE_A];
-    mInput.keyW = keyboardState[SDL_SCANCODE_W];
-    mInput.keyS = keyboardState[SDL_SCANCODE_S];
-    mInput.keyD = keyboardState[SDL_SCANCODE_D];
-    mInput.keyF = keyboardState[SDL_SCANCODE_F];
-    mInput.keyAlt = keyboardState[SDL_SCANCODE_LALT];
-
-    // Mouse
-    mInput.leftMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT));
-    mInput.middleMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_MIDDLE));
-    mInput.rightMouse = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT));
-
-    SDL_GetMouseState(&mInput.mouseAbsolutePosition.x, &mInput.mouseAbsolutePosition.y);
-
-
 }
 
 

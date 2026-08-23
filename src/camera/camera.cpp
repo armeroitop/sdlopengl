@@ -84,6 +84,23 @@ void Camera::setPivot(const glm::vec3& position) {
     mPivot = position;
 }
 
+void Camera::focus(const glm::vec3& position, const float radius) {
+    // Nos quedamos con la dirección en la que miramos;
+    glm::vec3 directionNormaliced = glm::normalize(mPosition - mPivot);
+
+    // cambiar el pivot al transform del objeto
+    mPivot = position;
+
+    // Calculamos la distancia necesaria para encuadrar el objeto.
+    const float margin = 1.2f;
+    //tan(fov/2) = seno/coseno = (radius*1.2f)/distance
+    float distance = (radius * margin) / glm::tan(glm::radians(mFov) / 2);
+
+    // Cambiamos la posición de la camara conservando la dirección de mirada
+    //float distance = 5.0f;
+    mPosition = position + directionNormaliced * distance;
+}
+
 void Camera::moveForward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
