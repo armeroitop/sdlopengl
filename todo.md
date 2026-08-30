@@ -4,7 +4,7 @@ Editor
 [ ] Camera
     [x] Desacoplar selección y pivot
     [x] Frame Selected (F) y encuadre
-    [ ] Zoom sobre cursor
+    [x] Zoom sobre cursor
     [ ] Guardar vistas
 
 [ ] Scene

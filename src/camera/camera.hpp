@@ -28,9 +28,6 @@ private:
     // Movement
     float mSpeed = 0.0f;
 
-    glm::vec3 getForward() const;
-    glm::vec3 getForwardNormaliced() const;
-
     void rotateAround(
         glm::vec3& movinPoint,
         const glm::vec3& fixedPoint,
@@ -46,7 +43,11 @@ public:
     glm::mat4 getViewMatrix() const;
     glm::mat4 getPerspectiveMatrix(float aspect) const;
 
+    glm::vec3 getForward() const;
+    glm::vec3 getForwardNormalized() const;
+
     void setPivot(const glm::vec3& position);
+    const glm::vec3& getPivot() const;
     void focus(const glm::vec3& position, const float radius);
 
     void moveForward(float deltaTime);
@@ -58,5 +59,6 @@ public:
     void mouseLook(float xrel, float yrel);
     void orbit(float xrel, float yrel);
     void zoom(float amount);
+    void zoomAtPoint(float amount, const glm::vec3& zoomPoint);
     void pan(float dx, float dy);
 };

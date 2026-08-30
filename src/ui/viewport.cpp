@@ -3,7 +3,6 @@
 
 
 #include <glm/gtc/type_ptr.hpp>
-#include <optional>
 #include <iostream>
 
 
@@ -20,6 +19,28 @@ glm::vec2 Viewport::screenToNDC(const glm::vec2& mouseAbsolutePosition) const {
         mousePositionViewport.x / mSize.x * 2 - 1,
         -mousePositionViewport.y / mSize.y * 2 + 1
     };
+}
+
+std::optional<glm::vec3> Viewport::rayPlaneIntersection(
+    const math::Ray& ray,
+    const glm::vec3& planePoint,
+    const glm::vec3& planeNormal
+) const {
+    float denominator =
+        glm::dot(planeNormal, ray.direction);
+
+    if (glm::abs(denominator) < 0.0001f) {
+        // Rayo paralelo al plano.
+        return std::nullopt;
+    }
+
+    float t =
+        glm::dot(
+            planePoint - ray.origin,
+            planeNormal
+        ) / denominator;
+
+    return ray.origin + ray.direction * t;
 }
 
 Viewport::Viewport(editor::EditorContext& context, Scene& scene, Camera& camera)
@@ -131,7 +152,6 @@ void Viewport::update(const input::Input& input) {
     }
     mContext.setSelectedObjectId(selectedObjectId);
 }
-
 
 void Viewport::begin() {
     ImGui::Begin("Viewport");
@@ -339,6 +359,18 @@ math::Ray Viewport::worldToLocalRay(const math::Ray& worldRay, const glm::mat4& 
     localRay.direction = glm::normalize(glm::vec3(direction));
 
     return localRay;
+}
+
+std::optional<glm::vec3> Viewport::getZoomPoint(const input::Input& input) const {
+    
+    if (!isMouseOver(input.mouseAbsolutePosition)) {
+        return std::nullopt;
+    }
+
+    math::Ray ray = screenToRay(input.mouseAbsolutePosition);
+
+
+    return rayPlaneIntersection(ray, mCamera.getPivot(), mCamera.getForward());
 }
 
 } // namespace ui

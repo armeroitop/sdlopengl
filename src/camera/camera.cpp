@@ -1,5 +1,6 @@
 #include "camera.hpp"
 #include <iostream>
+#include <optional>
 #include <glm/gtx/rotate_vector.hpp>
 
 
@@ -8,7 +9,7 @@ glm::vec3 Camera::getForward() const {
     return glm::normalize(mPivot - mPosition);
 }
 
-glm::vec3 Camera::getForwardNormaliced() const {
+glm::vec3 Camera::getForwardNormalized() const {
     glm::vec3 forward = getForward();
     forward.y = 0.0f;
     return glm::normalize(forward);
@@ -84,9 +85,13 @@ void Camera::setPivot(const glm::vec3& position) {
     mPivot = position;
 }
 
+const glm::vec3& Camera::getPivot() const {
+    return mPivot;
+}
+
 void Camera::focus(const glm::vec3& position, const float radius) {
     // Nos quedamos con la dirección en la que miramos;
-    glm::vec3 directionNormaliced = glm::normalize(mPosition - mPivot);
+    glm::vec3 directionNormalized = glm::normalize(mPosition - mPivot);
 
     // cambiar el pivot al transform del objeto
     mPivot = position;
@@ -98,23 +103,23 @@ void Camera::focus(const glm::vec3& position, const float radius) {
 
     // Cambiamos la posición de la camara conservando la dirección de mirada
     //float distance = 5.0f;
-    mPosition = position + directionNormaliced * distance;
+    mPosition = position + directionNormalized * distance;
 }
 
 void Camera::moveForward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
-    glm::vec3 forwardNormaliced = getForwardNormaliced();
+    glm::vec3 forwardNormalized = getForwardNormalized();
 
-    translate(forwardNormaliced * velocity);
+    translate(forwardNormalized * velocity);
 }
 
 void Camera::moveBackward(float deltaTime) {
     float velocity = mSpeed * deltaTime;
 
-    glm::vec3 forwardNormaliced = getForwardNormaliced();
+    glm::vec3 forwardNormalized = getForwardNormalized();
 
-    translate(-forwardNormaliced * velocity);
+    translate(-forwardNormalized * velocity);
 }
 
 void Camera::moveLeft(float deltaTime) {
@@ -148,6 +153,12 @@ void Camera::orbit(float xrel, float yrel) {
 void Camera::zoom(float amount) {
 
     translate(amount * getForward());
+}
+
+void Camera::zoomAtPoint(float amount, const glm::vec3& zoomPoint) {
+    glm::vec3 direction = glm::normalize(zoomPoint - mPosition);
+
+    translate(amount * direction);
 }
 
 void Camera::pan(float dx, float dy) {

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <optional>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -16,7 +17,8 @@
 
 
 App::App()
-    : mUI(mContext, mScene, mCamera) {
+    : mUI(mContext, mScene, mCamera),
+    mCameraController(mContext, mScene) {
 }
 
 void App::init() {
@@ -95,19 +97,14 @@ void App::init() {
 void App::update(float dt) {
     mScene.update(dt);
 
-    // Actualizamo el mPivot de la camara a la posición del objeto seleccionado pulsando F
-    if (mInput.keyFDown) {
-        mCurrentSelectedObjectId = mContext.getSelectedObjectId();
+    // ZOOM Actualizamos el ZoomPoint de la camara si se hace wheelscroll en el viewport
+    std::optional<glm::vec3> zoomPoint;
 
-        if (Object* object = mScene.findObject(mCurrentSelectedObjectId)) {
-            //mCamera.setPivot(object->getTransform().position);
-            mCamera.focus(
-                object->getTransform().position,
-                object->getWorldBoundingRadius()
-            );
-        }
-        std::cout << "Focus: " << std::endl;
+    if (mInput.wheelDelta != 0.0f) {
+        zoomPoint = mUI.getViewport().getZoomPoint(mInput);
     }
+
+    mCameraController.update(mCamera, mInput, dt, zoomPoint);
 
     mUI.update(mInput);
 }
@@ -137,11 +134,7 @@ void App::run() {
 
 
         processEvents();
-        //updateInputs(deltaTime); // para eliminar
-        mCameraController.update(mCamera, mInput, deltaTime);
 
-        //for (auto& mesh : gApp.mMeshes) mesh.update(deltatime);
-        //mScene.update(deltaTime);
         update(deltaTime);
 
         mRenderer.beginFrame(mWindow);

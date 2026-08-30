@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <imgui.h>
 #include <ImGuizmo.h>
+#include <optional>
 
 #include "editor/editor_context.hpp"
 #include "scene/scene.hpp"
@@ -27,6 +28,12 @@ private:
 
     glm::vec2 screenToNDC(const glm::vec2& mouseAbsolutePosition) const;
 
+    std::optional<glm::vec3> rayPlaneIntersection(
+        const math::Ray& ray,
+        const glm::vec3& planePoint,
+        const glm::vec3& planeNormal
+    ) const;
+
 public:
     Viewport(editor::EditorContext& context, Scene& scene, Camera& camera);
     ~Viewport();
@@ -48,6 +55,8 @@ public:
 
     math::Ray screenToRay(const glm::vec2& mouseAbsolutePosition) const;
     math::Ray worldToLocalRay(const math::Ray& worldRay, const glm::mat4& modelMatrix) const;
+
+    std::optional<glm::vec3> getZoomPoint(const input::Input& input) const;
 
 };
 
