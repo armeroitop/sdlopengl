@@ -10,6 +10,9 @@ class GLMesh
 private:
     GLuint VAO, VBO, EBO;
     GLsizei indexCount;
+    const app::geometry::Mesh& mMesh;
+
+    GLenum getOpenGLPrimitiveType() const;
 
 public:
     GLMesh(const app::geometry::Mesh& mesh);

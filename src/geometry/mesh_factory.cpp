@@ -20,7 +20,7 @@ Mesh app::geometry::MeshFactory::createRectangleMesh() {
     };
 
 
-    return Mesh(vertexPosition, indices);
+    return Mesh(vertexPosition, indices, PrimitiveType::Triangles);
 }
 
 Mesh app::geometry::MeshFactory::createCubeMesh() {
@@ -65,7 +65,20 @@ Mesh app::geometry::MeshFactory::createCubeMesh() {
         1,0,4
     };
 
-    return Mesh(vertices, indices);
+    return Mesh(vertices, indices, PrimitiveType::Triangles);
+}
+
+Mesh MeshFactory::createLine(const glm::vec3& pointA, const glm::vec3& pointB) {
+    glm::vec3 colorLine = { 1.0f,0.0f,0.0f };
+    
+    const std::vector<Vertex> vertices{
+        {pointA, colorLine},
+        {pointB, colorLine}
+    };
+
+     const std::vector<uint32_t> indices{0,1};
+
+    return Mesh(vertices, indices, PrimitiveType::Lines);
 }
 
 } // namespace app::geometry

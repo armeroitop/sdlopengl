@@ -13,6 +13,8 @@ public:
 
     static Mesh createRectangleMesh();
     static Mesh createCubeMesh();
+
+    static Mesh createLine(const glm::vec3& pointA, const glm::vec3& pointB);
 };
 
 } // namespace app_geometry

@@ -5,7 +5,23 @@
 using  app::geometry::Mesh;
 using  app::geometry::Vertex;
 
-GLMesh::GLMesh(const Mesh& mesh) {
+GLenum GLMesh::getOpenGLPrimitiveType() const {
+
+    switch (mMesh.mPrimitiveType) {
+        case app::geometry::PrimitiveType::Points:
+            return GL_POINT;
+        case app::geometry::PrimitiveType::Lines:
+            return GL_LINES;
+        case app::geometry::PrimitiveType::LineStrip:
+            return GL_LINE_STRIP;
+        case app::geometry::PrimitiveType::Triangles:
+            return GL_TRIANGLES;
+    }
+
+    return GL_TRIANGLES;
+}
+
+GLMesh::GLMesh(const Mesh& mesh) : mMesh(mesh) {
     if (mesh.vertices.empty()) {
         std::cerr << "Error: No se han establecido los datos de vértices para el mesh." << std::endl;
         exit(EXIT_FAILURE);
@@ -16,7 +32,7 @@ GLMesh::GLMesh(const Mesh& mesh) {
     }
 
     indexCount = static_cast<GLsizei>(mesh.indices.size());
-    
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -41,11 +57,11 @@ GLMesh::GLMesh(const Mesh& mesh) {
     );
 
     // Atributo Position - aPos del Shader
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),  (void*)offsetof(Vertex, position));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
     glEnableVertexAttribArray(0); // aquí el 0 es el location del atributo aPos
 
     // Atributo Color - aColor del Shader
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),  (void*)offsetof(Vertex, color));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
     glEnableVertexAttribArray(1); // aquí el 1 es el location del atributo aColor
 
     // Desvincular VAO y VBO
@@ -61,7 +77,7 @@ void GLMesh::draw() const {
 
     glBindVertexArray(VAO);
     glDrawElements(
-        GL_TRIANGLES,
+        getOpenGLPrimitiveType(),
         indexCount,
         GL_UNSIGNED_INT,
         0

@@ -19,6 +19,7 @@ public:
     const std::vector<Object>& getObjects() const;
 
     Object& createCubeMesh(const Transform& transform);
+    Object& createLine(); // TODO: implementar metodo
 
     const Object* findObject(uint32_t id) const;
     Object* findObject(uint32_t id);
