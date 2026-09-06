@@ -8,6 +8,7 @@ enum class Tool {
     Move,
     Rotate,
     Scale,
+    Line,
     Extrude,
     Bevel,
     Knife

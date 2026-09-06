@@ -40,6 +40,19 @@ Object& Scene::createCubeMesh(const Transform& transform) {
     return mObjects.back();
 }
 
+Object& Scene::createLine(const Transform& transform) {
+     std::string name = "line_" + std::to_string(mNextId);
+
+     mObjects.emplace_back(
+        mNextId++,
+        name,
+        app::geometry::MeshFactory::createLine({0.0f,0.0f,0.0f},{5.0f,0.0f,5.0f}),
+        transform
+    );
+
+    return mObjects.back();
+}
+
 const Object* Scene::findObject(uint32_t id) const {
     
     for (const auto& object : mObjects) {

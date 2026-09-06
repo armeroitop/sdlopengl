@@ -53,25 +53,19 @@ void Toolbar::draw() {
     ImGui::SameLine();
 
     // Herramientas de movimiento
-    addButton("M", editor::Tool::Move);
-    ImGui::SameLine();
-    addButton("R", editor::Tool::Rotate);
-    ImGui::SameLine();
-    addButton("S", editor::Tool::Scale);
-    ImGui::SameLine();
+    addButton("M", editor::Tool::Move);      ImGui::SameLine();
+    addButton("R", editor::Tool::Rotate);    ImGui::SameLine();
+    addButton("S", editor::Tool::Scale);     ImGui::SameLine();
 
     ImGui::Text(" | ");
     ImGui::SameLine();
-    
+
 
     // Modo de transformación
-    addTransformModeButton("L", editor::TransformMode::Local);
-    ImGui::SameLine();
-    addTransformModeButton("W", editor::TransformMode::World);
-    ImGui::SameLine();
-    
-    ImGui::Text(" | ");
-    ImGui::SameLine();
+    addTransformModeButton("L", editor::TransformMode::Local);    ImGui::SameLine();
+    addTransformModeButton("W", editor::TransformMode::World);    ImGui::SameLine();
+
+    ImGui::Text(" | ");    ImGui::SameLine();
 
     ImGui::Button("E"); ImGui::SameLine();
 
@@ -82,6 +76,9 @@ void Toolbar::draw() {
         t.position = glm::vec3(0.0f, 0.0f, -2.0f);
         mScene.createCubeMesh(t);
     }
+    ImGui::SameLine();
+
+    addButton("Line", editor::Tool::Line);     ImGui::SameLine();
 
     ImGui::End();
 }

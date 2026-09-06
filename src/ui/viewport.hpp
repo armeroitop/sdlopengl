@@ -10,6 +10,7 @@
 #include "camera/camera.hpp"
 #include "input/input.hpp"
 #include "math/ray.hpp"
+#include "editor/tools/line_tool.hpp"
 
 
 
@@ -35,6 +36,8 @@ private:
     ) const;
 
 public:
+    editor::tools::LineTool mLineTool;
+
     Viewport(editor::EditorContext& context, Scene& scene, Camera& camera);
     ~Viewport();
 
@@ -57,6 +60,12 @@ public:
     math::Ray worldToLocalRay(const math::Ray& worldRay, const glm::mat4& modelMatrix) const;
 
     std::optional<glm::vec3> getZoomPoint(const input::Input& input) const;
+
+    std::optional<glm::vec3> getPointOnPlane(
+        const input::Input& input,
+        const glm::vec3& planePoint,
+        const glm::vec3& planeNormal
+    ) const;
 
 };
 

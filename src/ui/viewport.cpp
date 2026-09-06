@@ -85,72 +85,71 @@ void Viewport::draw() {
 
 void Viewport::update(const input::Input& input) {
     if (!input.leftMouseDown ||
-        !isMouseOver(input.mouseAbsolutePosition) ||
-        (mContext.getTool() != editor::Tool::Select)) {
+        !isMouseOver(input.mouseAbsolutePosition)) {
         return;
     }
-    // hemos hecho click dentro del viewport
 
-    math::Ray worldRay =
-        screenToRay(input.mouseAbsolutePosition);
+    // ¿Qué herramienta está activa?
 
-    std::cout
-        << "worldRay origin: "
-        << worldRay.origin.x << ", "
-        << worldRay.origin.y << ", "
-        << worldRay.origin.z
-        << '\n';
+    // Herramienta de selección de objetos
+    if (mContext.getTool() == editor::Tool::Select) {
+        math::Ray worldRay = screenToRay(input.mouseAbsolutePosition);
 
-    std::cout
-        << "worldRay direction: "
-        << worldRay.direction.x << ", "
-        << worldRay.direction.y << ", "
-        << worldRay.direction.z
-        << '\n';
+        float closestDistance = std::numeric_limits<float>::infinity();
 
-    float closestDistance =
-        std::numeric_limits<float>::infinity();
+        uint32_t selectedObjectId = 0;
 
-    uint32_t selectedObjectId = 0;
+        for (const Object& object : mScene.getObjects()) {
 
-    for (const Object& object : mScene.getObjects()) {
+            glm::mat4 modelMatrix =
+                object.getTransform().getModelMatrix();
 
-        glm::mat4 modelMatrix =
-            object.getTransform().getModelMatrix();
+            math::Ray localRay =
+                worldToLocalRay(worldRay, modelMatrix);
 
-        math::Ray localRay =
-            worldToLocalRay(worldRay, modelMatrix);
+            float localDistance;
 
-        float localDistance;
-
-        if (math::intersect(
-            localRay,
-            object.getBoundingBox(),
-            localDistance)) {
+            if (math::intersect(
+                localRay,
+                object.getBoundingBox(),
+                localDistance)) {
 
 
-            glm::vec3 localHitPoint =
-                localRay.origin +
-                localDistance * localRay.direction;
+                glm::vec3 localHitPoint =
+                    localRay.origin +
+                    localDistance * localRay.direction;
 
-            glm::vec3 worldHitPoint =
-                glm::vec3(modelMatrix * glm::vec4(localHitPoint, 1.0f));
+                glm::vec3 worldHitPoint =
+                    glm::vec3(modelMatrix * glm::vec4(localHitPoint, 1.0f));
 
-            float worldDistance =
-                glm::length(worldHitPoint - worldRay.origin);
-
-
-            if (worldDistance < closestDistance) {
-                closestDistance = worldDistance;
-                //mContext.setSelectedObjectId(object.());
+                float worldDistance =
+                    glm::length(worldHitPoint - worldRay.origin);
 
 
-                selectedObjectId = object.getId();
+                if (worldDistance < closestDistance) {
+                    closestDistance = worldDistance;
+                    //mContext.setSelectedObjectId(object.());
+
+
+                    selectedObjectId = object.getId();
+                }
             }
-        }
 
+        }
+        mContext.setSelectedObjectId(selectedObjectId);
+
+    } else if (mContext.getTool() == editor::Tool::Line) {
+        // Herremienta de crear lineas
+        auto point = getPointOnPlane(
+            input,
+            glm::vec3(0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+
+        if (point && input.leftMouseDown) {
+            mLineTool.onMouseDown(*point);
+        }
     }
-    mContext.setSelectedObjectId(selectedObjectId);
 }
 
 void Viewport::begin() {
@@ -362,15 +361,18 @@ math::Ray Viewport::worldToLocalRay(const math::Ray& worldRay, const glm::mat4& 
 }
 
 std::optional<glm::vec3> Viewport::getZoomPoint(const input::Input& input) const {
-    
+
+    return getPointOnPlane(input, mCamera.getPivot(), mCamera.getForward());
+}
+
+std::optional<glm::vec3> Viewport::getPointOnPlane(const input::Input& input, const glm::vec3& planePoint, const glm::vec3& planeNormal) const {
     if (!isMouseOver(input.mouseAbsolutePosition)) {
         return std::nullopt;
     }
 
     math::Ray ray = screenToRay(input.mouseAbsolutePosition);
 
-
-    return rayPlaneIntersection(ray, mCamera.getPivot(), mCamera.getForward());
+    return rayPlaneIntersection(ray, planePoint, planeNormal);
 }
 
 } // namespace ui
