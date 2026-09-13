@@ -166,6 +166,8 @@ void App::shutdown() {
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 
+    mRenderer.shutdown();
+
     SDL_GL_DeleteContext(mGlContext);
     SDL_DestroyWindow(mWindow);
     SDL_Quit();

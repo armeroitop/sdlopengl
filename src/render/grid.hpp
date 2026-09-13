@@ -4,23 +4,21 @@
 #include "geometry/vertex.hpp"
 
 using  app::geometry::Vertex;
-namespace render
-{
-    class Grid
-    {
-    private:
-        GLuint mVAO, mVBO;
-        Vertex vertice;
-        std::vector<Vertex> mVertices;
-        GLsizei mVertexCount;
-    public:
+namespace render {
+class Grid {
+private:
+    GLuint mVAO, mVBO;
+    Vertex vertice;
+    std::vector<Vertex> mVertices;
+    GLsizei mVertexCount;
+public:
 
-        Grid(/* args */);
-        bool init();
+    Grid(/* args */);
+    bool init();
 
-        void draw();
-    };
-    
- 
-    
+    void draw();
+};
+
+
+
 } // namespace render

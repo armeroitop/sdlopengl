@@ -7,6 +7,7 @@
 #include "shader.hpp"
 #include "editor/editor_context.hpp"
 #include "grid.hpp"
+#include "previews.hpp"
 
 namespace render {
 
@@ -19,6 +20,7 @@ private:
 
     Shader mShader;
     Grid mGrid;
+    Previews mPreviews;
 
 public:
     Renderer(/* args */);
@@ -37,6 +39,8 @@ public:
     //void setShaderProgram(GLuint shaderProgram);
     //GLuint getShaderProgram() const;
     void beginFrame(SDL_Window* window);
+
+    void shutdown();
 };
 
 

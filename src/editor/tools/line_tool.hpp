@@ -21,7 +21,6 @@ public:
     glm::vec3 mPointA{ 0.0f };
     glm::vec3 mCurrentPoint{ 0.0f };
 
-
     //void update(const input::Input& input, const ui::Viewport& viewport);
     void onMouseDown(const glm::vec3& worldpoint);
     void cancel();
@@ -32,6 +31,9 @@ public:
     void getPreviewStart();
     void getPreviewEnd();
     glm::vec3 getPointA() const;
+    glm::vec3 getCurrentPoint() const;
+    void update(const glm::vec3& worldPoint);
+
 
     LineTool(/* args */);
     ~LineTool();

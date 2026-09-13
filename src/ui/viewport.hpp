@@ -67,6 +67,8 @@ public:
         const glm::vec3& planeNormal
     ) const;
 
+    const editor::tools::LineTool& getLineTool() const;
+
 };
 
 } // namespace ui

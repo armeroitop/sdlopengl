@@ -19,7 +19,7 @@ public:
     const std::vector<Object>& getObjects() const;
 
     Object& createCubeMesh(const Transform& transform);
-    Object& createLine(const Transform& transform);
+    Object& createLine(const glm::vec3& pointA, const glm::vec3& pointB);
 
     const Object* findObject(uint32_t id) const;
     Object* findObject(uint32_t id);

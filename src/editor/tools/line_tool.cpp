@@ -13,18 +13,26 @@ namespace editor::tools {
     }
 } */
 
+glm::vec3 LineTool::getCurrentPoint() const {
+    return mCurrentPoint;
+}
+
 void LineTool::onMouseDown(const glm::vec3& worldpoint) {
+
     if (mState == LineToolState::WaitingForPointA) {
 
         mPointA = worldpoint;
+        mCurrentPoint = worldpoint;
+
         mState = LineToolState::WaitingForPointB;
-        std::cout << "mState WaitingForPointA" << std::endl;
+        //std::cout << "mState change for WaitingForPointB" << std::endl;
 
         //mCurrentPoint = ...;
     } else if (mState == LineToolState::WaitingForPointB) {
 
         mState = LineToolState::WaitingForPointA;
-        std::cout << "mState WaitingForPointB" << std::endl;
+        //std::cout << "mState  change for WaitingForPointA" << std::endl;
+
     }
 }
 
@@ -41,8 +49,17 @@ LineToolState LineTool::getState() const {
     return mState;
 }
 
-glm::vec3 LineTool::getPointA() const{
+glm::vec3 LineTool::getPointA() const {
     return mPointA;
+}
+
+void LineTool::update(const glm::vec3& worldPoint) {
+
+    if (mState != LineToolState::WaitingForPointB) {
+        return;
+    }
+
+    mCurrentPoint = worldPoint;
 }
 
 LineTool::LineTool() {

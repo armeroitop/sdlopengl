@@ -84,15 +84,15 @@ void Viewport::draw() {
 }
 
 void Viewport::update(const input::Input& input) {
-    if (!input.leftMouseDown ||
-        !isMouseOver(input.mouseAbsolutePosition)) {
+    if (!isMouseOver(input.mouseAbsolutePosition)) {
         return;
     }
 
     // ¿Qué herramienta está activa?
 
     // Herramienta de selección de objetos
-    if (mContext.getTool() == editor::Tool::Select) {
+    if (mContext.getTool() == editor::Tool::Select
+        && input.leftMouseDown) {
         math::Ray worldRay = screenToRay(input.mouseAbsolutePosition);
 
         float closestDistance = std::numeric_limits<float>::infinity();
@@ -139,16 +139,43 @@ void Viewport::update(const input::Input& input) {
         mContext.setSelectedObjectId(selectedObjectId);
 
     } else if (mContext.getTool() == editor::Tool::Line) {
-        // Herremienta de crear lineas
-        auto point = getPointOnPlane(
-            input,
-            glm::vec3(0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f)
-        );
 
-        if (point && input.leftMouseDown) {
-            mLineTool.onMouseDown(*point);
+        if (input.leftMouseDown) {
+            auto point = getPointOnPlane(
+                input,
+                glm::vec3(0.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f)
+            );
+
+            if (point) {
+                mLineTool.onMouseDown(*point);
+
+                if (mLineTool.getState() == editor::tools::LineToolState::WaitingForPointA) {
+                    mScene.createLine(mLineTool.getPointA(), *point);
+                }
+            }
         }
+
+
+        if (mLineTool.isInProgress()) {
+            // Aquí podemos crear una linea temporal como preview de edición
+
+            auto point = getPointOnPlane(
+                input,
+                glm::vec3(0.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f)
+            );
+
+            //std::cout << "cambiamos el currentpoint " << std::endl;
+
+            if (point) {
+                mLineTool.update(*point);
+            }
+
+        }
+
+
+
     }
 }
 
@@ -373,6 +400,10 @@ std::optional<glm::vec3> Viewport::getPointOnPlane(const input::Input& input, co
     math::Ray ray = screenToRay(input.mouseAbsolutePosition);
 
     return rayPlaneIntersection(ray, planePoint, planeNormal);
+}
+
+const editor::tools::LineTool& Viewport::getLineTool() const {
+    return mLineTool;
 }
 
 } // namespace ui

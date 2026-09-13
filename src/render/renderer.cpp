@@ -56,6 +56,25 @@ void Renderer::render(Scene& scene, Camera& camera, const ui::Viewport& viewport
             mShader.setBool("useOverrideColor", false);
         }
     }
+
+    // Prueba. Dibujar una lina preview
+   /*  mPreviews.drawLine(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(5.0f, 0.0f, 5.0f)
+    ); */
+
+    // Preview de línea
+    const auto& lineTool = viewport.getLineTool();
+
+    if (lineTool.isInProgress()) {
+
+        mShader.setMat4("model", glm::mat4(1.0f)); // Volvemos a poner la matriz model a origen
+
+        mPreviews.drawLine(
+            lineTool.getPointA(),
+            lineTool.getCurrentPoint()
+        );
+    }
 }
 
 void Renderer::init() {
@@ -66,6 +85,7 @@ void Renderer::init() {
     }
 
     mGrid.init();
+    mPreviews.init();
 }
 
 void Renderer::beginFrame(SDL_Window* window) {
@@ -86,6 +106,12 @@ void Renderer::beginFrame(SDL_Window* window) {
     //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::shutdown() {
+    //mGrid.shutdown(); TODO: Implementar tambien este metodo
+    mPreviews.shutdown();
+
 }
 
 

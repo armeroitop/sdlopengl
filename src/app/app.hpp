@@ -11,6 +11,7 @@
 #include "ui/ui_manager.hpp"
 #include "editor/editor_context.hpp"
 #include "render/renderer.hpp"
+#include "render/previews.hpp"
 #include "input/input.hpp"
 
 struct App {
@@ -31,6 +32,7 @@ struct App {
     u_int32_t mLastSelectedObjectId = 0;
 
     Scene mScene;
+    //Previews mPreviews;
     editor::EditorContext mContext;
 
     ui::UIManager mUI;
